@@ -4,7 +4,7 @@ default:
     @just --list
 
 # Every gate
-check: verify-input build-check coverage validate lint-reuse
+check: verify-input build-check coverage validate test lint-reuse
 
 # Verify hash of vendored source input
 verify-input:
@@ -24,7 +24,11 @@ coverage *sources:
 
 # quick and dirty validator
 validate *files:
-    ./tools/validate.py {{files}}
+    uv run --frozen esoterica-validate {{files}}
+
+# The workspace's tests
+test *args:
+    uv run --frozen pytest {{args}}
 
 lint-reuse:
     uvx reuse lint

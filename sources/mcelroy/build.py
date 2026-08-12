@@ -60,7 +60,7 @@ CUSTOM_NAME_RE = re.compile(r"\A[a-z_][a-z0-9_]*\Z")
 
 # "Enigmas never age, have you noticed that?"
 # https://en.wikipedia.org/wiki/Jeffrey_Epstein%27s_birthday_book
-TRUMP_RE = re.compile(r"\ATrump ([0-9]+): (.+)\Z")
+TRUMP_REGEX = re.compile(r"\ATrump ([0-9]+): (.+)\Z")
 
 
 class BuildError(Exception):
@@ -81,13 +81,14 @@ def read_input(source: dict) -> list[str]:
     if actual != spec["sha256"]:
         raise BuildError(
             f"{path} does not match SOURCE.toml: recorded {spec['sha256']}, "
-            f"found {actual}. The input bytes are never edited."
+            f"found {actual}."
         )
 
     text = raw.decode(spec["encoding"]["declared"])
     lines = text.split("\n")
     if lines and lines[-1] == "":
         lines.pop()
+
     return [repair(line, source) for line in lines]
 
 
@@ -109,13 +110,9 @@ def repair(line: str, source: dict) -> str:
     return line
 
 
-# ---------------------------------------------------------------------------
-# Claims: which input line produced what
-# ---------------------------------------------------------------------------
-
 
 class Claims:
-    """A record of what each input line was used for, for tools/coverage.py."""
+    """A record of what each input line was used for, for coverage."""
 
     def __init__(self) -> None:
         self.by_line: dict[int, dict[str, str]] = {}
@@ -129,11 +126,6 @@ class Claims:
         self.by_line[line] = {"kind": kind, "claim": claim}
 
 
-# ---------------------------------------------------------------------------
-# Small helpers
-# ---------------------------------------------------------------------------
-
-
 def parse_range(spec: str) -> list[int]:
     if "-" in spec:
         first, last = spec.split("-", 1)
@@ -142,7 +134,7 @@ def parse_range(spec: str) -> list[int]:
 
 
 def slugify(label: str) -> str:
-    """A symbol label to a DECK.md 3.2 custom name."""
+    """A symbol label to a custom name."""
     text = label.rstrip(".?!").lower()
     text = text.replace("'", "").replace("’", "")
     text = re.sub(r"[^a-z0-9]+", "_", text).strip("_")
@@ -168,9 +160,7 @@ def blocks(texts: list[str]) -> str:
     """Join source lines into one passage.
 
     Each line of the book is its own paragraph, so lines are separated by a
-    blank line. A run of bullets is one block, its items separated by a single
-    newline, because double-spacing a list would be this program's formatting
-    rather than the book's.
+    blank line.
     """
     out: list[str] = []
     run: list[str] = []
@@ -278,8 +268,8 @@ class Builder:
             card_id = None
 
     def card_id(self, text: str) -> str | None:
-        trump = TRUMP_RE.match(text)
-        if trump:
+        major = TRUMP_REGEX.match(text)
+        if major:
             return f"major_arcana.{int(trump.group(1)):02d}"
         minor = self.minor_re.match(text)
         if minor:
@@ -607,11 +597,7 @@ class Builder:
 
 
 def git_commit() -> str:
-    """The commit the builder ran at, or "uncommitted" in a dirty tree.
-
-    CI is always clean, so the value that ends up committed is a real one.
-    Failing the build here instead would make a dirty working copy unbuildable.
-    """
+    """The commit the builder ran at, or "uncommitted" in a dirty tree."""
     try:
         head = subprocess.run(
             ["git", "-C", str(REPO_ROOT), "rev-parse", "HEAD"],
@@ -634,11 +620,7 @@ def provenance(builder: Builder, output_name: str, output_text: str) -> dict:
     spec = builder.source["input"]
     return {
         "schema": 1,
-        "note": (
-            "Provenance for the built file beside this one. This is not an "
-            "esoterica source: it carries no [meta].schema_version, so "
-            "ESOTERICA.md 2.2.1 does not read it as one."
-        ),
+        "note": "Provenance for the built file beside this one.",
         "build": {
             "builder": "sources/mcelroy/build.py",
             "commit": git_commit(),

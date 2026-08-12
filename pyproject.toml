@@ -1,0 +1,20 @@
+[project]
+name = "esoterica-workspace"
+version = "0"
+requires-python = ">=3.14"
+dependencies = ["esoterica-spec"]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+esoterica-spec = { workspace = true }
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

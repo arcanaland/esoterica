@@ -1,28 +1,10 @@
-# How this source's text maps onto ESOTERICA.md keys.
-#
-# Data only. build.py walks the structure of input/mcelroy.txt and looks
-# everything else up here, so that a reviewer checking a mapping decision reads
-# a table rather than a parser. Every label-to-key correspondence, every suit
-# rename, every per-value routing decision is in this file.
-#
-# Line numbers appearing here are line numbers in input/mcelroy.txt, whose bytes
-# are pinned by SOURCE.toml's sha256 and never change.
-#
-# Transforms named below and implemented in build.py:
-#   verbatim            the repaired text, unchanged
-#   lowercase           lowercased; ESOTERICA.md 6.1 SHOULDs it for correspondences
-#   lowercase_no_period lowercased with one trailing "." removed
-#   unquote             one layer of enclosing double quotes removed
+# How this source's text maps onto the spec's keys.
 
 schema = 1
 
-# ---------------------------------------------------------------------------
-# Structure
-# ---------------------------------------------------------------------------
 
 [structure]
-# The seven column-0 headings that occur inside a card entry. An eighth would
-# be a build failure rather than a silently dropped section.
+# The seven column-0 headings that occur inside a card entry.
 card_sections = [
   "Note",
   "Keywords",
@@ -33,7 +15,7 @@ card_sections = [
   "Questions to Ask",
 ]
 
-# Column-0 headings that divide the book's chapters but name no card.
+# Column-0 headings that divide the book's chapters
 chapter_dividers = [
   "Suit of Wands",
   "Suit of Cups",
@@ -167,8 +149,7 @@ gloss_target = "correspondences.x_numerology"
 # ---------------------------------------------------------------------------
 # "Hebrew Alphabet:" -- 22 rows
 # ---------------------------------------------------------------------------
-# The book prints Letter/Meaning/Value, which 6.1 demonstrates normalizing into
-# three keys. Driven from a table rather than a split because the rows are not
+# The book prints Letter/Meaning/Value
 # uniform: `Zain/Sword/ 7` carries a stray space, and four rows carry a second
 # attribution introduced by "or" or ", or in some decks,". The alternate is kept
 # whole in x_hebrew_letter_alt rather than decomposed, lowercased for 6.1.
@@ -371,9 +352,6 @@ planet = "saturn"
 # ---------------------------------------------------------------------------
 # Front matter that is content rather than apparatus
 # ---------------------------------------------------------------------------
-# Five chapters of the book describe groups of cards rather than any one card,
-# and ESOTERICA.md 4.4's builtin families name exactly those groups. Each entry
-# below claims a line range; drops.toml claims everything else.
 
 [[front_matter]]
 lines = "180-181"
@@ -432,14 +410,6 @@ strip_prefix = "Dimension of Life: "
 # ---------------------------------------------------------------------------
 # Suit correspondences
 # ---------------------------------------------------------------------------
-# Each suit's "Other Associations:" line is one English sentence naming, in
-# order, a season, a colour, a compass direction and an element. There are four
-# such lines in the book, so the sixteen values are written here as data rather
-# than recovered by parsing English.
-#
-# Coins reads "The color green or brown", an alternation. It is kept as one
-# string for the same reason the planetary alternations are: `color` admits an
-# array, but an array would say both apply, and the book says either.
 
 [[group_correspondences]]
 target = "group.suits.wands"
@@ -464,8 +434,6 @@ values = { season = "winter", color = "green or brown", direction = "north", ele
 # ---------------------------------------------------------------------------
 # [meta]
 # ---------------------------------------------------------------------------
-# Values not drawn from SOURCE.toml. See TASK-003 in the knowledge base for why
-# copyright, description and rights_status are omitted rather than guessed.
 
 [meta]
 schema_version = "1.0"
@@ -482,9 +450,7 @@ derivation = "full"
 [output]
 filename = "mcelroy-a-guide-to-tarot-card-meanings-2014.toml"
 
-# Key order in the built file. Keys absent from a given target are skipped;
-# a key produced by the build and missing from these lists is a build failure,
-# so adding a mapping above without ordering it here cannot slip through.
+# Key order in the built file (absent means skipped)
 passage_order = [
   "text",
   "theme",
@@ -501,6 +467,7 @@ passage_order = [
   "advice",
   "symbols",
 ]
+
 advice_order = [
   "relationships",
   "work",
@@ -509,6 +476,7 @@ advice_order = [
   "fortune_telling",
   "timing",
 ]
+
 correspondence_order = [
   "number",
   "archetype",
@@ -526,6 +494,7 @@ correspondence_order = [
   "x_numerology",
   "x_elemental_dignity",
 ]
+
 group_order = [
   "group.arcana.major",
   "group.arcana.minor",

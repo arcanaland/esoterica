@@ -13,3 +13,4 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - uses: extractions/setup-just@v2
       - run: just validate
+      - run: just test

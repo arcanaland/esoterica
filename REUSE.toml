@@ -10,9 +10,18 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Adam Fidel"
 SPDX-License-Identifier = "CC0-1.0"
 
-# Code
+# Code and config
 [[annotations]]
-path = ["justfile", "tools/**", "sources/*/build.py"]
+path = [
+  "justfile",
+  "tools/**",
+  "sources/*/build.py",
+  "sources/*/mapping.toml",
+  "sources/*/drops.toml",
+  "sources/mcelroy/dist/PROVENANCE.toml",
+  "packages/*/src/**",
+  "tests/**",
+]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Adam Fidel"
 SPDX-License-Identifier = "MIT"
@@ -31,16 +40,3 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "2014 Mark McElroy"
 SPDX-License-Identifier = "LicenseRef-McElroy-Uncopyright"
 
-# The mapping is not the text. mapping.toml and drops.toml say where a label
-# goes and why a line was left out; they quote no passage. PROVENANCE.toml is a
-# build record and sits inside dist/, so it is carved back out of the entry
-# above rather than inheriting the input's terms.
-[[annotations]]
-path = [
-  "sources/*/mapping.toml",
-  "sources/*/drops.toml",
-  "sources/*/dist/PROVENANCE.toml",
-]
-precedence = "aggregate"
-SPDX-FileCopyrightText = "2026 Adam Fidel"
-SPDX-License-Identifier = "CC0-1.0"

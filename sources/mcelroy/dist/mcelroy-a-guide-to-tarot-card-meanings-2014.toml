@@ -1,6 +1,6 @@
 [meta]
 schema_version = "1.0"
-identifier = "land.arcana.dev/esoterica/mcelroy-a-guide-to-tarot-card-meanings-2014"
+identifier = "land.arcana/esoterica/mcelroy-a-guide-to-tarot-card-meanings-2014"
 name = "A Guide to Tarot Card Meanings"
 type = "book"
 author = "Mark McElroy"

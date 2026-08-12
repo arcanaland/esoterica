@@ -1,11 +1,10 @@
 schema = 1
-note = """
-Provenance for the built file beside this one. This is not an esoterica source: it carries no [meta].schema_version, so ESOTERICA.md 2.2.1 does not read it as one."""
+note = "Provenance for the built file beside this one."
 
 [build]
 builder = "sources/mcelroy/build.py"
 commit = "uncommitted"
-identifier = "land.arcana.dev/esoterica/mcelroy-a-guide-to-tarot-card-meanings-2014"
+identifier = "land.arcana/esoterica/mcelroy-a-guide-to-tarot-card-meanings-2014"
 
 [input]
 path = "input/mcelroy.txt"
@@ -14,7 +13,7 @@ lines = 2658
 
 [output]
 path = "dist/mcelroy-a-guide-to-tarot-card-meanings-2014.toml"
-sha256 = "9e934f97ddc45138643adcf6f2273f9819ecd82de9752ccaee478c66f09efc7b"
+sha256 = "5c8b34936a85c65199675403b7241db4fa764fee6982748d75e2488bc4327f76"
 
 [counts]
 lines = 2658

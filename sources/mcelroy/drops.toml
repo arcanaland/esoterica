@@ -1,13 +1,7 @@
 # Lines of input/mcelroy.txt this build deliberately does not carry into dist/.
 #
 # tools/coverage.py partitions all 2658 input lines into mapped, dropped and
-# unclaimed, and fails on any line that is none of the three. A drop is
-# therefore a decision recorded here, never an omission: adding a line to this
-# file is how the build says "this was read and left out, for this reason".
-#
-# Line numbers are line numbers in input/mcelroy.txt, whose bytes are pinned by
-# SOURCE.toml's sha256 and never change.
-
+# unclaimed, and fails on any line that is none of the three.
 schema = 1
 
 # ---------------------------------------------------------------------------
@@ -16,7 +10,7 @@ schema = 1
 
 [[drop]]
 rule = "blank"
-reason = "Whitespace separating the book's blocks. It carries no text and the passage structure it produced is already in the built file."
+reason = "Whitespace separating the book's blocks."
 
 # ---------------------------------------------------------------------------
 # Title page and apparatus
@@ -28,35 +22,31 @@ reason = "Title and byline. Carried as [meta].name and [meta].author, from SOURC
 
 [[drop]]
 lines = "4-101"
-reason = "Table of contents. Navigation for a paginated book; ESOTERICA.md has no target it addresses and a source is scanned rather than paged (2.2.1)."
+reason = "Table of contents."
 
 [[drop]]
 lines = "104-106"
-reason = "Dedication. A personal note naming no card and no group. 5.2 registers no key for it and it is not about the cards."
+reason = "Dedication."
 
 # ---------------------------------------------------------------------------
 # Licence and preface
 # ---------------------------------------------------------------------------
-# These two chapters are the terms this whole source rests on, which is exactly
-# why they are not passage text. They became LICENSES/LicenseRef-McElroy-
-# Uncopyright.txt, SOURCE.toml's [license], and [meta].license, [meta].version,
-# [meta].attribution, [meta].redistribution and [meta].derivation in dist/.
 
 [[drop]]
 lines = "109-112"
-reason = "Uncopyright Notice. Carried as LICENSES/LicenseRef-McElroy-Uncopyright.txt and [meta].license, [meta].redistribution and [meta].derivation."
+reason = "Uncopyright Notice."
 
 [[drop]]
 lines = "114"
-reason = "\"Version 1.0\". Carried as [meta].version, via SOURCE.toml's [work].edition."
+reason = "Version 1.0"
 
 [[drop]]
 lines = "117-123"
-reason = "Author's Preface. States the terms in prose and requests the credit line carried as [meta].attribution."
+reason = "Author's Preface."
 
 [[drop]]
 lines = "125-127"
-reason = "The author's signature and two web addresses. [meta].author carries the name; ESOTERICA.md 4.1's `url` names where the work is found, and neither address is that."
+reason = "The author's signature and two web addresses."
 
 # ---------------------------------------------------------------------------
 # The how-to chapter
@@ -64,13 +54,11 @@ reason = "The author's signature and two web addresses. [meta].author carries th
 
 [[drop]]
 lines = "130-171"
-reason = "\"Making the Most of These Meanings\". A chapter about how to use the book, addressing no card and no group. Its \"How to Apply These Entries\" section describes the six per-card sections, which the built file's structure already states."
+reason = "A chapter about how to use the book, addressing no card and no group."
 
 # ---------------------------------------------------------------------------
 # Chapter headings and navigation
 # ---------------------------------------------------------------------------
-# The chapters themselves are carried; see mapping.toml's [[front_matter]].
-# What is dropped here is the apparatus around them.
 
 [[drop]]
 lines = "174"
@@ -115,25 +103,16 @@ reason = "\"Suit of Coins\" divider."
 # ---------------------------------------------------------------------------
 # The suit blocks
 # ---------------------------------------------------------------------------
-# Each block is a heading, an "Also Called:" line, a "Dimension of Life:" line
-# and an "Other Associations:" line. The last two are carried by mapping.toml.
-# The first two are dropped, per suit, for the two reasons below.
-#
-# "Also Called:" is the one drop in this file that loses information the
-# specification has no room for. ESOTERICA.md 4.4 names a suit by its canonical
-# key and 4.4.1 evaluates membership against the deck in hand, so a source has
-# no way to say "the suit some decks call Batons is the suit I call Wands".
-# Recorded as a candidate finding in the knowledge base rather than invented
-# here as an x_ key, because a name a reader would see is a display string and
-# 6.1 says correspondence values are not that.
 
 [[drop]]
 lines = "912"
 reason = "\"Wands\" heading. Structural: it selects group.suits.wands."
 
+# TODO:
+# "Also Called:" loses information the spec cannot represent currently
 [[drop]]
 lines = "913"
-reason = "\"Also Called:\" for Wands. Alternative suit names used by other decks. ESOTERICA.md 4.4 gives a source no way to name a suit other than by its canonical key."
+reason = "\"Also Called:\" for Wands. Alternative suit names used by other decks."
 
 [[drop]]
 lines = "916"
@@ -153,8 +132,8 @@ reason = "\"Also Called:\" for Swords."
 
 [[drop]]
 lines = "924"
-reason = "\"Coins\" heading. Structural: it selects group.suits.pentacles, the canonical key DECK.md:431 fixes for this suit."
+reason = "\"Coins\" heading. Structural: it selects group.suits.pentacles"
 
 [[drop]]
 lines = "925"
-reason = "\"Also Called:\" for Coins. Note that it lists \"Pentacles\", the name this build files the suit under."
+reason = "\"Also Called:\" for Pentacles/Coins."
