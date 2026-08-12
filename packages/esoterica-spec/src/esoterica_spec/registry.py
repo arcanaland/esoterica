@@ -57,10 +57,22 @@ SLOTS = ("passages", "correspondences", "cards")
 # 5.2. `symbols.<name>` is the one open subkey and is handled by is_registered.
 PASSAGE_KEYS = frozenset(
     {
-        "text", "keywords", "theme", "light", "shadow", "questions", "affirmation",
-        "story", "personality", "approach",
-        "advice.relationships", "advice.work", "advice.spirituality",
-        "advice.personal_growth", "advice.fortune_telling", "advice.timing",
+        "text",
+        "keywords",
+        "theme",
+        "light",
+        "shadow",
+        "questions",
+        "affirmation",
+        "story",
+        "personality",
+        "approach",
+        "advice.relationships",
+        "advice.work",
+        "advice.spirituality",
+        "advice.personal_growth",
+        "advice.fortune_telling",
+        "advice.timing",
     }
 )
 # 5.3. A property of the registry entry, not of any passage. No rule reads this;
@@ -70,8 +82,18 @@ DIVINATORY_KEYS = frozenset({"advice.fortune_telling", "advice.timing"})
 # 6.2
 CORRESPONDENCE_KEYS = frozenset(
     {
-        "element", "number", "astrology", "planet", "zodiac", "decan", "season",
-        "direction", "color", "archetype", "hebrew_letter", "hebrew_letter_meaning",
+        "element",
+        "number",
+        "astrology",
+        "planet",
+        "zodiac",
+        "decan",
+        "season",
+        "direction",
+        "color",
+        "archetype",
+        "hebrew_letter",
+        "hebrew_letter_meaning",
         "hebrew_letter_value",
     }
 )

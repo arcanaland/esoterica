@@ -4,7 +4,7 @@ default:
     @just --list
 
 # Every gate
-check: verify-input build-check coverage validate test lint-reuse
+check: verify-input build-check coverage validate test lint lint-reuse
 
 # Verify hash of vendored source input
 verify-input:
@@ -29,6 +29,16 @@ validate *files:
 # The workspace's tests
 test *args:
     uv run --frozen pytest {{args}}
+
+# Formatting and lint, checked but not written
+lint:
+    uv run --frozen ruff format --check .
+    uv run --frozen ruff check .
+
+# Write the formatting and the fixable lint
+fmt:
+    uv run --frozen ruff format .
+    uv run --frozen ruff check --fix .
 
 lint-reuse:
     uvx reuse lint

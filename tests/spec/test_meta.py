@@ -50,9 +50,7 @@ def test_meta_field_accepted(validate, meta, line):
 # a source at all (2.2.1), which test_document covers.
 @pytest.mark.parametrize("key", ["identifier", "name", "license"])
 def test_required_meta_field_absent(validate, meta, key):
-    without = "".join(
-        line + "\n" for line in meta.splitlines() if not line.startswith(key)
-    )
+    without = "".join(line + "\n" for line in meta.splitlines() if not line.startswith(key))
     report = validate(meta=without)
     assert ("E", "4.1") in [(f.level, f.spec) for f in report.findings]
 

@@ -4,7 +4,7 @@ import pytest
 
 
 def test_unknown_top_level_table(validate):
-    report = validate('[extra]\nanything = true\n')
+    report = validate("[extra]\nanything = true\n")
     assert [(f.level, f.spec) for f in report.findings] == [("E", "4")]
 
 
@@ -24,7 +24,7 @@ def test_no_card_and_no_group_target(validate):
 
 @pytest.mark.parametrize(
     "text",
-    ["this is not toml at all\n", 'name = "no meta table"\n', "[meta]\nname = \"x\"\n"],
+    ["this is not toml at all\n", 'name = "no meta table"\n', '[meta]\nname = "x"\n'],
 )
 def test_not_a_source_when_globbed(scan, text):
     """2.2.1: a candidate that does not parse or carries no schema_version."""

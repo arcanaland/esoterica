@@ -1,13 +1,13 @@
 #!/usr/bin/env -S uv run --script
 # /// script
-# requires-python = ">=3.11"
+# requires-python = ">=3.14"
 # dependencies = []
 # ///
 """Build the McElroy source into a conforming esoterica document
 
-    build.py                  write dist/ and PROVENANCE.toml
-    build.py --check          rebuild into memory and diff against what is committed
-    build.py --mapped-lines   print, as JSON, which input line produced what
+build.py                  write dist/ and PROVENANCE.toml
+build.py --check          rebuild into memory and diff against what is committed
+build.py --mapped-lines   print, as JSON, which input line produced what
 
 """
 
@@ -57,6 +57,12 @@ EXPECTED = {
 ACCENT_MARKS = {"acute": "́", "grave": "̀"}
 CUSTOM_NAME_RE = re.compile(r"\A[a-z_][a-z0-9_]*\Z")
 
+# The lookahead keeps "Vau/Nail or Spike/6" whose "or" is inside the meaning
+HEBREW_ALT_RE = re.compile(r",?\s+or,?\s+(?:in some decks,\s+)?(?=[^/]+/[^/]+/\s*\d+\s*\Z)")
+
+# Handle both "Mars/Aries" and "Leo or Libra"
+PLANETARY_SPLIT_RE = re.compile(r"\s*/\s*|\s+or\s+")
+
 
 # "Enigmas never age, have you noticed that?"
 # https://en.wikipedia.org/wiki/Jeffrey_Epstein%27s_birthday_book
@@ -72,7 +78,7 @@ def load_toml(path: Path) -> dict:
 
 
 def read_input(source: dict) -> list[str]:
-    """Return the input's lines, repaired, one-indexed by list position + 1."""
+    """Return the input's lines, repaired."""
     spec = source["input"]
     path = HERE / spec["path"]
     raw = path.read_bytes()
@@ -80,8 +86,7 @@ def read_input(source: dict) -> list[str]:
     actual = hashlib.sha256(raw).hexdigest()
     if actual != spec["sha256"]:
         raise BuildError(
-            f"{path} does not match SOURCE.toml: recorded {spec['sha256']}, "
-            f"found {actual}."
+            f"{path} does not match SOURCE.toml: recorded {spec['sha256']}, found {actual}."
         )
 
     text = raw.decode(spec["encoding"]["declared"])
@@ -93,7 +98,7 @@ def read_input(source: dict) -> list[str]:
 
 
 def repair(line: str, source: dict) -> str:
-    """Undo the input's encoding defects.."""
+    """Undo the input's encoding defects."""
     for wrong, right in source["input"]["mojibake"].items():
         line = line.replace(wrong, right)
 
@@ -108,7 +113,6 @@ def repair(line: str, source: dict) -> str:
             line,
         )
     return line
-
 
 
 class Claims:
@@ -156,6 +160,20 @@ def apply_transform(value: str, transform: str) -> str:
     raise BuildError(f"mapping.toml names a transform build.py does not have: {transform!r}")
 
 
+def triple(printed: str, label: str, line_no: int) -> list[str]:
+    """A Hebrew row's `Letter/Meaning/Value` split and stripped."""
+    parts = [part.strip() for part in printed.split("/")]
+    if len(parts) != 3 or not parts[2].isdigit():
+        raise BuildError(f"line {line_no}: {label} is not Letter/Meaning/Value: {printed!r}")
+    return parts
+
+
+def split_hebrew_alt(printed: str) -> tuple[str, str]:
+    """A Hebrew row into its primary attribution and its alternate, if any."""
+    parts = HEBREW_ALT_RE.split(printed, maxsplit=1)
+    return parts[0], parts[1] if len(parts) > 1 else ""
+
+
 def blocks(texts: list[str]) -> str:
     """Join source lines into one passage.
 
@@ -178,7 +196,7 @@ def blocks(texts: list[str]) -> str:
 
 
 def undent(line: str) -> str:
-    return line[2:] if line.startswith("  ") else line
+    return line.removeprefix("  ")
 
 
 def set_path(table: dict, dotted: str, value) -> None:
@@ -270,7 +288,7 @@ class Builder:
     def card_id(self, text: str) -> str | None:
         major = TRUMP_REGEX.match(text)
         if major:
-            return f"major_arcana.{int(trump.group(1)):02d}"
+            return f"major_arcana.{int(major.group(1)):02d}"
         minor = self.minor_re.match(text)
         if minor:
             return f"minor_arcana.{self.suits[minor.group(2)]}.{self.ranks[minor.group(1)]}"
@@ -433,28 +451,54 @@ class Builder:
         self.tally["numbers" if label == "Numbers" else "numerology"] += 1
 
     def corr_hebrew(self, card_id: str, label: str, value: str, line_no: int) -> None:
-        row = self.mapping["correspondences"]["hebrew"].get(card_id)
-        if row is None:
-            raise BuildError(f"line {line_no}: mapping.toml has no Hebrew row for {card_id}")
+        config = self.mapping["correspondences"]["hebrew"]
         card = self.cards[card_id]
-        set_path(card, "correspondences.hebrew_letter", row["letter"])
-        set_path(card, "correspondences.hebrew_letter_meaning", row["meaning"])
-        set_path(card, "correspondences.hebrew_letter_value", row["value"])
-        if "alt" in row:
-            set_path(card, "correspondences.x_hebrew_letter_alt", row["alt"])
-        self.claims.add(line_no, "content", f'card."{card_id}".correspondences.hebrew_letter*')
+
+        primary, alt = split_hebrew_alt(value.lower())
+        letter, meaning, printed = (part.strip() for part in triple(primary, label, line_no))
+
+        set_path(card, config["letter_target"], letter)
+        set_path(card, config["meaning_target"], meaning)
+        set_path(card, config["value_target"], int(printed))
+        claimed = "hebrew_letter*"
+        if alt:
+            set_path(card, config["alt_target"], "/".join(triple(alt, label, line_no)))
+            claimed += " + x_hebrew_letter_alt"
+
+        self.claims.add(line_no, "content", f'card."{card_id}".correspondences.{claimed}')
         self.tally["hebrew"] += 1
 
     def corr_planetary(self, card_id: str, label: str, value: str, line_no: int) -> None:
-        row = self.mapping["correspondences"]["planetary"].get(card_id)
-        if row is None:
-            raise BuildError(f"line {line_no}: mapping.toml has no planetary row for {card_id}")
-        keys = []
-        for key, routed in row.items():
-            set_path(self.cards[card_id], f"correspondences.{key}", routed)
-            keys.append(key)
+        config = self.mapping["correspondences"]["planetary"]
+        vocabulary = config["terms"]
+
+        terms = [term.strip().lower() for term in PLANETARY_SPLIT_RE.split(value)]
+        kinds = []
+        for term in terms:
+            if term not in vocabulary:
+                raise BuildError(
+                    f"line {line_no}: {label} names {term!r}, which mapping.toml's "
+                    f"planetary vocabulary does not classify"
+                )
+            kinds.append(vocabulary[term])
+
+        if len(set(kinds)) == 1:
+            # An alternation, or a compound of one kind.
+            routed = [(kinds[0], value.lower())]
+        elif len(set(kinds)) != len(kinds):
+            raise BuildError(
+                f"line {line_no}: {label} compounds two terms of one kind, so "
+                f"neither can hold the key: {value!r}"
+            )
+        else:
+            routed = list(zip(kinds, terms, strict=True))
+
+        for kind, routed_value in routed:
+            set_path(self.cards[card_id], config["kind_targets"][kind], routed_value)
         self.claims.add(
-            line_no, "content", f'card."{card_id}".correspondences.' + "+".join(keys)
+            line_no,
+            "content",
+            f'card."{card_id}".correspondences.' + "+".join(kind for kind, _ in routed),
         )
         self.tally["planetary"] += 1
 
@@ -486,9 +530,7 @@ class Builder:
 
         for entry in self.mapping.get("group_correspondences", []):
             for n in parse_range(entry["lines"]):
-                self.claims.add(
-                    n, "content", f"{entry['target']}.correspondences"
-                )
+                self.claims.add(n, "content", f"{entry['target']}.correspondences")
             for key, value in entry["values"].items():
                 set_path(self.group(entry["target"])["correspondences"], key, value)
 
@@ -535,8 +577,20 @@ class Builder:
             return (0, int(parts[1]), 0)
         suits = ["wands", "cups", "swords", "pentacles"]
         ranks = [
-            "ace", "two", "three", "four", "five", "six", "seven", "eight",
-            "nine", "ten", "page", "knight", "queen", "king",
+            "ace",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine",
+            "ten",
+            "page",
+            "knight",
+            "queen",
+            "king",
         ]
         return (1, suits.index(parts[1]), ranks.index(parts[2]))
 
@@ -583,7 +637,8 @@ class Builder:
             "author": work["author"],
             "published_date": fixed["published_date"],
             "license": licence["spdx"],
-            "version": work["edition"],
+            "version": fixed["version"],
+            "citation": fixed["citation"],
             "default_language": fixed["default_language"],
             "attribution": licence["attribution_requested"],
             "redistribution": fixed["redistribution"],
@@ -611,7 +666,7 @@ def git_commit() -> str:
             text=True,
             check=True,
         ).stdout.strip()
-    except (OSError, subprocess.CalledProcessError):
+    except OSError, subprocess.CalledProcessError:
         return "uncommitted"
     return "uncommitted" if dirty else head
 
@@ -655,7 +710,7 @@ def build() -> tuple[Builder, str, str]:
 def main(argv: list[str]) -> int:
     unknown = set(argv) - {"--check", "--mapped-lines"}
     if unknown:
-        print(f"build.py: unknown argument {sorted(unknown)[0]}", file=sys.stderr)
+        print(f"build.py: unknown argument {min(unknown)}", file=sys.stderr)
         return 2
 
     try:
@@ -694,8 +749,7 @@ def main(argv: list[str]) -> int:
             committed = load_toml(sidecar)
             if committed.get("output", {}).get("sha256") != record["output"]["sha256"]:
                 print(
-                    "FAIL build.py --check: PROVENANCE.toml records a different "
-                    "output sha256",
+                    "FAIL build.py --check: PROVENANCE.toml records a different output sha256",
                     file=sys.stderr,
                 )
                 failed = True

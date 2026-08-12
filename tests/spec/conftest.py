@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from esoterica_spec.validate import Report, check
 
 META = """\

@@ -1,6 +1,6 @@
 #!/usr/bin/env -S uv run --script
 # /// script
-# requires-python = ">=3.11"
+# requires-python = ">=3.14"
 # dependencies = []
 # ///
 """Account for every line of every source's input
@@ -53,6 +53,7 @@ def mapped_lines(directory: Path) -> dict[int, dict]:
         [str(directory / "build.py"), "--mapped-lines"],
         capture_output=True,
         text=True,
+        check=False,
     )
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or "build.py --mapped-lines failed")

@@ -3,9 +3,7 @@ from __future__ import annotations
 import pytest
 
 
-@pytest.mark.parametrize(
-    "key", ["land.arcana", "land.arcana.cartomancer", "a.b"]
-)
+@pytest.mark.parametrize("key", ["land.arcana", "land.arcana.cartomancer", "a.b"])
 def test_realm_accepted(validate, key):
     assert validate(f'[app."{key}"]\nanything = true\n').findings == []
 

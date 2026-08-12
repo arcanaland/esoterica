@@ -117,9 +117,7 @@ def check_leaf(where: str, value, slot: str, report: Report) -> None:
             if not value:
                 report.error("5.1", where, f"{where} is an empty array")
             elif not all(isinstance(v, str) and v for v in value):
-                report.error(
-                    "5.1", where, f"{where} is not an array of non-empty strings"
-                )
+                report.error("5.1", where, f"{where} is not an array of non-empty strings")
         else:
             report.error(
                 "5.1",
@@ -214,9 +212,7 @@ def check_cards_slot(where: str, value, is_custom_group: bool, report: Report) -
         elif ":" in item:
             report.error("4.5", where, f"{where} carries a variant suffix: {item!r}")
         elif not grammar.is_canonical_id(item):
-            report.error(
-                "4.5", where, f"{where} carries {item!r}, which is not a canonical ID"
-            )
+            report.error("4.5", where, f"{where} carries {item!r}, which is not a canonical ID")
         elif item in seen:
             report.error("4.5", where, f"{where} lists {item!r} twice")
         else:
@@ -270,8 +266,7 @@ def check_meta(meta: dict, report: Report) -> None:
             report.error(
                 "3.1",
                 "meta.identifier",
-                f"[meta].identifier is not a well-formed qualified identifier: "
-                f"{identifier!r}",
+                f"[meta].identifier is not a well-formed qualified identifier: {identifier!r}",
             )
         elif identifier.split("/")[1] != "esoterica":
             # 3.1 grades this a MUST and 11.4 grades it a W. A validator
@@ -300,9 +295,7 @@ def check_meta(meta: dict, report: Report) -> None:
 
     url = meta.get("url")
     if isinstance(url, str) and not grammar.is_absolute_url(url):
-        report.error(
-            "4.1", "meta.url", f"[meta].url is not an absolute http(s) URL: {url!r}"
-        )
+        report.error("4.1", "meta.url", f"[meta].url is not an absolute http(s) URL: {url!r}")
 
     language = meta.get("default_language")
     if isinstance(language, str) and not grammar.is_language_tag(language):
@@ -330,8 +323,7 @@ def check_meta(meta: dict, report: Report) -> None:
         report.warn(
             "4.1.1",
             "meta.type",
-            f"[meta].type {source_type!r} is outside the registry and is not "
-            f"prefixed x_",
+            f"[meta].type {source_type!r} is outside the registry and is not prefixed x_",
         )
 
 
@@ -353,8 +345,7 @@ def check_group(groups: dict, report: Report) -> None:
             report.error(
                 "3.3",
                 f"group.{key}",
-                f"[group.{key}] contains no / and is not one of 4.4's six builtin "
-                f"family names",
+                f"[group.{key}] contains no / and is not one of 4.4's six builtin family names",
             )
             continue
 
@@ -377,8 +368,7 @@ def check_group(groups: dict, report: Report) -> None:
                     )
                     continue
             elif not (
-                member in registry.FAMILY_MEMBERS.get(key, ())
-                or grammar.is_custom_name(member)
+                member in registry.FAMILY_MEMBERS.get(key, ()) or grammar.is_custom_name(member)
             ):
                 report.error("4.4", where, f"[{where}] is not a well-formed member name")
                 continue

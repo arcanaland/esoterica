@@ -21,8 +21,20 @@ URL_RE = re.compile(r"\Ahttps?://[^\s]+\Z")
 
 CANONICAL_SUITS = ("wands", "cups", "swords", "pentacles")
 CANONICAL_RANKS = (
-    "ace", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-    "ten", "page", "knight", "queen", "king",
+    "ace",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "page",
+    "knight",
+    "queen",
+    "king",
 )
 
 

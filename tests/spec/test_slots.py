@@ -64,7 +64,7 @@ def test_correspondence_rejected(validate, body, level, spec):
 
 def test_unregistered_symbol_subkey_is_registered(validate):
     """`symbols.<name>` is 5.2's one open subkey; the name is the author's."""
-    body = f"{TARGET}.passages.symbols]\nanything_at_all = \"A wit.\"\n"
+    body = f'{TARGET}.passages.symbols]\nanything_at_all = "A wit."\n'
     assert validate(card=body).findings == []
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env -S uv run --script
 # /// script
-# requires-python = ">=3.11"
+# requires-python = ">=3.14"
 # dependencies = []
 # ///
 """A deterministic TOML 1.0.0 writer
@@ -22,6 +22,7 @@ transcription pipeline is a lost byte.
 
 from __future__ import annotations
 
+import math
 import sys
 
 # A value at least this long is written as a multi-line basic string even when
@@ -32,9 +33,7 @@ MULTILINE_THRESHOLD = 100
 # An inline array wider than this is broken one element per line.
 ARRAY_WIDTH = 76
 
-BARE_KEY_CHARS = frozenset(
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
-)
+BARE_KEY_CHARS = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")
 
 
 def _render_key(key: str) -> str:
@@ -95,7 +94,7 @@ def _render_scalar(value: object) -> str:
     if isinstance(value, int):
         return str(value)
     if isinstance(value, float):
-        if value != value or value in (float("inf"), float("-inf")):
+        if math.isnan(value) or math.isinf(value):
             raise TypeError(f"TOML cannot carry {value!r} portably")
         return repr(value)
     if isinstance(value, str):

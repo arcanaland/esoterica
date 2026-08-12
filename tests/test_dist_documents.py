@@ -9,7 +9,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from esoterica_spec.validate import DEFAULT_GLOB, check, render
 
 REPO_ROOT = Path(__file__).resolve().parent.parent

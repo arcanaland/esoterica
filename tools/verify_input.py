@@ -1,6 +1,6 @@
 #!/usr/bin/env -S uv run --script
 # /// script
-# requires-python = ">=3.11"
+# requires-python = ">=3.14"
 # dependencies = []
 # ///
 """Verify every vendored source input against its sha256
@@ -40,10 +40,10 @@ def verify(manifest: Path) -> list[str]:
 
     kind = spec.get("kind")
     if kind == "fetched":
-        print(f"skip {manifest.parent.name}: kind = \"fetched\", no local bytes")
+        print(f'skip {manifest.parent.name}: kind = "fetched", no local bytes')
         return []
     if kind != "vendored":
-        return [f"[input].kind must be \"vendored\" or \"fetched\", got {kind!r}"]
+        return [f'[input].kind must be "vendored" or "fetched", got {kind!r}']
 
     rel = spec.get("path")
     if not isinstance(rel, str):

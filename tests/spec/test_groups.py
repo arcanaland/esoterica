@@ -32,7 +32,7 @@ def test_group_accepted(validate, body):
         (f"[group.suits.Wands.passages]\n{PASSAGE}", "E", "4.4"),
         (f"[group.custom.lunar.passages]\n{PASSAGE}", "W", "4.5"),
         ('[group.suits.wands]\ncards = ["major_arcana.02"]', "E", "4.5"),
-        ('[group.custom.lunar]\ncards = []', "E", "4.5"),
+        ("[group.custom.lunar]\ncards = []", "E", "4.5"),
         ('[group.custom.lunar]\ncards = ["major_arcana.02:alt"]', "E", "4.5"),
         ('[group.custom.lunar]\ncards = ["the_moon"]', "E", "4.5"),
         (
