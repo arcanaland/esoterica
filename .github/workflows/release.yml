@@ -1,0 +1,108 @@
+name: Release
+
+# A release is selection and attestation, not production: dist/ is already
+# committed, so every asset here is a verbatim committed file that `just check`
+# has just rebuilt and diffed in this same job.
+#
+# The only trigger is a per-source annotated tag, `<source>/v<version>`, pushed
+# by hand. No workflow_dispatch and no push to main: distribution is where this
+# repository's reversal cost is set (ADR-001).
+
+on:
+  push:
+    tags: ['*/v*']
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The annotated tag object itself is a gate, so fetch it.
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: astral-sh/setup-uv@v5
+      - uses: extractions/setup-just@v2
+
+      - name: Split the tag
+        id: tag
+        run: |
+          TAG="${{ github.ref_name }}"
+          SOURCE="${TAG%%/*}"
+          VERSION="${TAG#*/v}"
+          if [ "$TAG" = "$SOURCE" ] || [ "$TAG" = "$VERSION" ]; then
+            echo "::error::tag '$TAG' is not <source>/v<version>"
+            exit 1
+          fi
+          echo "source=$SOURCE" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # Every gate, in this job, so the artifact is provably from a tree that passed.
+      - run: just check
+
+      - name: Check the release
+        run: just release-check "${{ steps.tag.outputs.source }}" "${{ steps.tag.outputs.version }}" --require-tag
+
+      - name: Stage the assets
+        id: assets
+        env:
+          SOURCE: ${{ steps.tag.outputs.source }}
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: |
+          mkdir -p release
+          just release-check "$SOURCE" "$VERSION" --assets > "$RUNNER_TEMP/assets.txt"
+          cat "$RUNNER_TEMP/assets.txt"
+          xargs -a "$RUNNER_TEMP/assets.txt" -I{} cp {} release/
+          (cd release && sha256sum -- * > SHA256SUMS)
+          cat release/SHA256SUMS
+
+          echo "document=$(basename "$(head -1 "$RUNNER_TEMP/assets.txt")")" >> "$GITHUB_OUTPUT"
+          echo "identifier=$(just release-check "$SOURCE" "$VERSION" --identifier)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'release/*'
+
+      # A table of values read out of files, and nothing else. Narrative release
+      # notes are Adam's to write (AI-POLICY.md 2): this workflow writes no prose.
+      - name: Write the release body
+        env:
+          DOCUMENT: ${{ steps.assets.outputs.document }}
+          IDENTIFIER: ${{ steps.assets.outputs.identifier }}
+          VERSION: ${{ steps.tag.outputs.version }}
+          SHA: ${{ github.sha }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          {
+            echo "| | |"
+            echo "|---|---|"
+            echo "| identifier | \`$IDENTIFIER\` |"
+            echo "| version | \`$VERSION\` |"
+            echo "| commit | \`$SHA\` |"
+            echo "| sha256 | \`$(sha256sum "release/$DOCUMENT" | cut -d' ' -f1)\` |"
+            echo
+            echo '```'
+            echo "cp $DOCUMENT \"\${XDG_DATA_HOME:-\$HOME/.local/share}/tarot/esoterica/\""
+            echo '```'
+            echo
+            echo "Verify: \`gh attestation verify $DOCUMENT --repo $REPOSITORY\`"
+          } > "$RUNNER_TEMP/body.md"
+          cat "$RUNNER_TEMP/body.md"
+
+      # TODO(adam): the body names no ESOTERICA.md revision, because nothing in
+      # the tree records which draft a build was validated against. Parked in
+      # RFC-006; the likely home is esoterica-spec's package metadata.
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "${{ steps.tag.outputs.source }} v${{ steps.tag.outputs.version }}" \
+            --notes-file "$RUNNER_TEMP/body.md" \
+            release/*

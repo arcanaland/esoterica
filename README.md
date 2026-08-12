@@ -7,16 +7,20 @@ This repository contains esoterica data for tarot, such as card interpretations,
 Assuming you have `uv` and `just`.
 
 ```
-just              # list recipes
-just build        # TODO
-just check        # CI gates
-just verify-input # inputs match their recorded checksums
-just validate     # built sources satisfy checks
-just reuse        # every path carries license terms
+$ just list
+Available recipes:
+    build             # Rebuild all esoterica files in dist/
+    check             # Run all of the gates
+    coverage *sources # Check if every input line is mapped or known dropped
+    fmt               # Write the formatting and the fixable lint
+    lint              # Formatting and lint
+    test *args        # The workspace's tests
+    validate *files   # quick and dirty validator
+    verify-input      # Verify hash of vendored source input
 ```
 
 ## Licensing
 
 Most of the useful data in this repo is licensed under [`LicenseRef-McElroy-Uncopyright`](./LICENSES/LicenseRef-McElroy-Uncopyright.txt). Basically, thanks Mark McElroy!
 
-This repository is REUSE-compliant and should be consulted for details.
+This repository uses REUSE which should be consulted for details.
