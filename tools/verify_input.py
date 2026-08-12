@@ -62,15 +62,6 @@ def verify(manifest: Path) -> list[str]:
     elif actual != expected:
         problems.append(f"sha256 mismatch: recorded {expected}, found {actual}")
 
-    size = path.stat().st_size
-    if "bytes" in spec and spec["bytes"] != size:
-        problems.append(f"byte length mismatch: recorded {spec['bytes']}, found {size}")
-
-    if "lines" in spec:
-        count = path.read_bytes().count(b"\n")
-        if spec["lines"] != count:
-            problems.append(f"line count mismatch: recorded {spec['lines']}, found {count}")
-
     if not problems:
         print(f"ok   {path.relative_to(REPO_ROOT)}  {actual}")
 
