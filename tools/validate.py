@@ -3,27 +3,18 @@
 # requires-python = ">=3.11"
 # dependencies = []
 # ///
-"""Check built esoterica sources against the cheapest of ESOTERICA.md §11.4's rules.
+"""Check built esoterica sources against a deliberately shallow implementation of the spec
 
-This is deliberately shallow. It implements only the rules that are local, syntactic and
-need nothing but the file in hand:
-
-    E  the file is valid TOML 1.0.0 encoded as UTF-8 and carries a [meta] table   (§11.4, §2.3)
-    E  [meta] carries schema_version, identifier, name and license               (§11.4, §4.1)
-    E  [meta].schema_version has the form §1.4 requires: "<major>.<minor>"       (§11.4, §1.4)
-
-Everything else in §11.4 is out of scope here, some of it permanently: rules needing a
-graph, a whole library, or a deck in hand belong in libarcana, not in a build gate. See
-ADR-001, "The validator is shallow, and deliberately".
-
-A checker written against §11.4 by the same project that wrote §11.4 cannot falsify §11.4.
-It catches builder bugs. That is the whole claim.
+    E  the file is valid TOML 1.0.0 encoded as UTF-8 and carries a [meta] table
+    E  [meta] carries schema_version, identifier, name and license
+    E  [meta].schema_version has the form "<major>.<minor>"
 
 Usage:
     validate.py [FILE ...]
 
-With no arguments it globs sources/*/dist/*.toml relative to the repository root. Exits 0
-when every file passes and when there are no files at all; exits 1 on any failure.
+With no arguments it globs sources/*/dist/*.toml relative to the repository root.
+
+Exits 0 when every file passes.
 """
 
 from __future__ import annotations
@@ -50,32 +41,32 @@ def check(path: Path) -> list[str]:
     try:
         raw.decode("utf-8")
     except UnicodeDecodeError as exc:
-        return [f"§2.3: not valid UTF-8 at byte {exc.start}"]
+        return [f"not valid UTF-8 at byte {exc.start}"]
 
     try:
         doc = tomllib.loads(raw.decode("utf-8"))
     except tomllib.TOMLDecodeError as exc:
-        return [f"§2.3: not valid TOML 1.0.0: {exc}"]
+        return [f"not valid TOML 1.0.0: {exc}"]
 
     meta = doc.get("meta")
     if meta is None:
-        return ["§2.3: no [meta] table"]
+        return ["no [meta] table"]
     if not isinstance(meta, dict):
-        return ["§2.3: [meta] is not a table"]
+        return ["[meta] is not a table"]
 
     errors = []
     for key in REQUIRED_META_KEYS:
         if key not in meta:
-            errors.append(f"§4.1: [meta].{key} is required and absent")
+            errors.append(f"[meta].{key} is required and absent")
         elif not isinstance(meta[key], str):
             errors.append(
-                f"§4.1: [meta].{key} must be a String, got {type(meta[key]).__name__}"
+                f"[meta].{key} must be a String, got {type(meta[key]).__name__}"
             )
 
     version = meta.get("schema_version")
     if isinstance(version, str) and not SCHEMA_VERSION_RE.match(version):
         errors.append(
-            f"§1.4: [meta].schema_version must be \"<major>.<minor>\", got {version!r}"
+            f"[meta].schema_version must be \"<major>.<minor>\", got {version!r}"
         )
 
     return errors
@@ -88,8 +79,8 @@ def main(argv: list[str]) -> int:
         paths = sorted(REPO_ROOT.glob(DEFAULT_GLOB))
 
     if not paths:
-        print(f"validate: no files matched {DEFAULT_GLOB} — nothing to check")
-        return 0
+        print(f"validate: no files matched {DEFAULT_GLOB}")
+        return 1
 
     failed = False
     for path in paths:

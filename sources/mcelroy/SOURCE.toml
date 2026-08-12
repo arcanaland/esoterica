@@ -15,19 +15,11 @@ released = "2014-08"
 title = "The Absolute Beginner’s Guide to Tarot"
 publisher = "Que Books"
 rights_reverted_to_author = 2013
-stated_at = "input/mcelroy.txt:111"
 
 [license]
 spdx = "LicenseRef-McElroy-Uncopyright"
 license_file = "LICENSES/LicenseRef-McElroy-Uncopyright.txt"
 copyright = "2014 Mark McElroy"
-# The licence text is quoted verbatim from the input, with the [input.mojibake] transform
-# below applied and no other change.
-quoted_from_path = "input/mcelroy.txt"
-quoted_from_lines = "109-128"
-# Every use is granted; one right is reserved (no attempt to copyright the work or limit its
-# use); attribution is requested and explicitly not required. No SPDX identifier means this,
-# which is why the value above is a LicenseRef and not CC0-1.0.
 attribution_required = false
 attribution_requested = "Divinatory Meanings by Mark McElroy (http://www.TarotTools.com)"
 
@@ -35,18 +27,11 @@ attribution_requested = "Divinatory Meanings by Mark McElroy (http://www.TarotTo
 kind = "vendored"
 path = "input/mcelroy.txt"
 sha256 = "4f365123c518c05beb013a784b79e9a742c823ae221e626a5ab5a009d2c1e317"
-bytes = 292208
-lines = 2658
 
-# The file's bytes are valid UTF-8, but its *text* is damaged: Mac Roman punctuation was
-# decoded as Latin-1 before the file was encoded to UTF-8. The bytes stay exactly as
-# received — see ADR-001, "Encoding is a transform, never an edit". The repair below is
-# applied by the builder at read time and is never written back to input/.
 [input.encoding]
 declared = "utf-8"
-text_damage = "mac-roman decoded as latin-1"
 
-# Mac lol
+# some Mac-Roman / Windows-1252 trickery happening here with the so called "utf-8"
 [input.mojibake]
 "Õ" = "’"
 "Ñ" = "—"

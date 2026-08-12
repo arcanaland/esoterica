@@ -3,21 +3,9 @@
 # requires-python = ">=3.11"
 # dependencies = []
 # ///
-"""Verify every vendored source input against the sha256 its SOURCE.toml records.
+"""Verify every vendored source input against its sha256
 
-This is the gate that makes "verbatim in tree" a checkable claim rather than a promise.
-The input file is never edited, for any reason — encoding damage included; the repair is a
-transform inside the builder. See ADR-001, "Encoding is a transform, never an edit".
-
-Sources declaring `kind = "fetched"` carry a URL rather than a path and have no local bytes
-to hash. No build fetches anything today, so such a source is reported and skipped rather
-than downloaded: this tool does no network I/O.
-
-Usage:
-    verify_input.py
-
-Exits 0 when every vendored input matches, 1 on any mismatch, missing file, or malformed
-manifest.
+Exits 0 when every vendored input matches.
 """
 
 from __future__ import annotations
@@ -85,14 +73,15 @@ def verify(manifest: Path) -> list[str]:
 
     if not problems:
         print(f"ok   {path.relative_to(REPO_ROOT)}  {actual}")
+
     return problems
 
 
 def main() -> int:
     manifests = sorted(REPO_ROOT.glob(SOURCE_GLOB))
     if not manifests:
-        print(f"verify_input: no files matched {SOURCE_GLOB} — nothing to verify")
-        return 0
+        print(f"verify_input: no files matched {SOURCE_GLOB}")
+        return 1
 
     failed = False
     for manifest in manifests:
