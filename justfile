@@ -46,3 +46,7 @@ lint-reuse:
 # Self-test the deterministic TOML writer
 emit-test:
     ./tools/emit.py
+
+# Refuse to release a source under a version its built file does not state
+release-check source version *args:
+    ./tools/release_check.py {{source}} {{version}} {{args}}
