@@ -19,6 +19,12 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Restore the annotated tag object
+        run: |
+          git fetch --force origin \
+            "refs/tags/${{ github.ref_name }}:refs/tags/${{ github.ref_name }}"
+          git cat-file -t "${{ github.ref_name }}"
+
       - uses: astral-sh/setup-uv@v5
       - uses: extractions/setup-just@v2
 
