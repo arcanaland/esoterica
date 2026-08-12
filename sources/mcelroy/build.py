@@ -3,7 +3,7 @@
 # requires-python = ">=3.14"
 # dependencies = []
 # ///
-"""Build the McElroy source into a conforming esoterica document
+"""Build a conforming esoterica document from McElroy's book
 
 build.py                  write dist/ and PROVENANCE.toml
 build.py --check          rebuild into memory and diff against what is committed
@@ -16,7 +16,6 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-import subprocess
 import sys
 import tomllib
 import unicodedata
@@ -651,26 +650,6 @@ class Builder:
 # ---------------------------------------------------------------------------
 
 
-def git_commit() -> str:
-    """The commit the builder ran at, or "uncommitted" in a dirty tree."""
-    try:
-        head = subprocess.run(
-            ["git", "-C", str(REPO_ROOT), "rev-parse", "HEAD"],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.strip()
-        dirty = subprocess.run(
-            ["git", "-C", str(REPO_ROOT), "status", "--porcelain"],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.strip()
-    except OSError, subprocess.CalledProcessError:
-        return "uncommitted"
-    return "uncommitted" if dirty else head
-
-
 def provenance(builder: Builder, output_name: str, output_text: str) -> dict:
     spec = builder.source["input"]
     return {
@@ -678,7 +657,6 @@ def provenance(builder: Builder, output_name: str, output_text: str) -> dict:
         "note": "Provenance for the built file beside this one.",
         "build": {
             "builder": "sources/mcelroy/build.py",
-            "commit": git_commit(),
             "identifier": builder.source["identifier"],
         },
         "input": {

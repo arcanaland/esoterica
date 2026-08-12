@@ -1,8 +1,4 @@
-"""A shallow, dependency-free reading of the Tarot Esoterica Specification.
-
-Downstream of ESOTERICA.md, not of this corpus: nothing here knows that
-sources/mcelroy exists.
-"""
+"""A shallow, dependency-free reading of the Tarot Esoterica Specification."""
 
 from esoterica_spec.validate import Finding, Report, check
 

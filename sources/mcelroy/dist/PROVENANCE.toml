@@ -3,7 +3,6 @@ note = "Provenance for the built file beside this one."
 
 [build]
 builder = "sources/mcelroy/build.py"
-commit = "uncommitted"
 identifier = "land.arcana/esoterica/mcelroy-a-guide-to-tarot-card-meanings-2014"
 
 [input]
