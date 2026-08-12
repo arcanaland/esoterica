@@ -1,5 +1,4 @@
-"""A shallow, dependency-free reading of the Tarot Esoterica Specification.
-"""
+"""A shallow, dependency-free reading of the Tarot Esoterica Specification."""
 
 from esoterica_spec.validate import Finding, Report, check
 
