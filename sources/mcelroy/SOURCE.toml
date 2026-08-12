@@ -1,17 +1,8 @@
-# Manifest for one corpus source. Machine-facing; the prose that explains it lives in
-# agents/ADR/ADR-001-corpus-is-a-build-pipeline.md, which is not published with this repo.
-#
-# The [input] table is deliberately shaped so a source whose text may be quoted but not
-# redistributed can carry `kind = "fetched"` and a `url` in place of `path`, with the same
-# `sha256` doing the same work. Nothing else in this file changes for such a source.
+# Manifest for one corpus source.
 
 schema = 1
 
-# The esoterica source identifier this source builds to, per ESOTERICA.md §3.1.
-# NOT DECIDED. It is a name in the wild the moment anyone installs a build, so it is the
-# repo owner's to choose, not a builder's to guess. `mcelroy-tarot-meanings` is this
-# directory's name and is not an identifier.
-identifier = "TODO"
+identifier = "land.arcana.dev/x_esoterica_source/mcelroy-a-guide-to-tarot-card-meanings-2014"
 
 [work]
 title = "A Guide to Tarot Card Meanings"
@@ -20,7 +11,6 @@ year = 2014
 edition = "Version 1.0"
 released = "2014-08"
 
-# Stated at input/mcelroy.txt:111.
 [work.prior_publication]
 title = "The Absolute Beginner’s Guide to Tarot"
 publisher = "Que Books"
@@ -56,6 +46,7 @@ lines = 2658
 declared = "utf-8"
 text_damage = "mac-roman decoded as latin-1"
 
+# Mac lol
 [input.mojibake]
 "Õ" = "’"
 "Ñ" = "—"
