@@ -18,7 +18,6 @@ path = [
   "sources/*/build.py",
   "sources/*/mapping.toml",
   "sources/*/drops.toml",
-  "sources/mcelroy/dist/PROVENANCE.toml",
   "packages/*/src/**",
   "tests/**",
 ]
@@ -39,4 +38,11 @@ path = "sources/mcelroy/dist/**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2014 Mark McElroy"
 SPDX-License-Identifier = "LicenseRef-McElroy-Uncopyright"
+
+# Build metadata should be mine
+[[annotations]]
+path = "sources/*/dist/PROVENANCE.toml"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Adam Fidel"
+SPDX-License-Identifier = "MIT"
 

@@ -21,8 +21,6 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 96
-# Inferred from requires-python, and the PEP 723 headers on build.py and
-# tools/*.py declare the same, so every gate runs one Python.
 
 [tool.ruff.lint]
 extend-select = ["E", "I", "UP", "B", "C4", "SIM"]

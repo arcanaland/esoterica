@@ -704,7 +704,11 @@ def build() -> tuple[Builder, str, str]:
     mapping = load_toml(HERE / "mapping.toml")
     builder = Builder(source, mapping, read_input(source))
     document = builder.run()
-    return builder, mapping["output"]["filename"], emit.dumps(document)
+
+    # REUSE-IgnoreStart
+    header = f"# SPDX-License-Identifier: {source['license']['spdx']}\n\n"
+    # REUSE-IgnoreEnd
+    return builder, mapping["output"]["filename"], header + emit.dumps(document)
 
 
 def main(argv: list[str]) -> int:
