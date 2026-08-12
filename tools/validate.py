@@ -80,7 +80,9 @@ def main(argv: list[str]) -> int:
 
     if not paths:
         print(f"validate: no files matched {DEFAULT_GLOB}")
-        return 1
+        # TODO:: This should be an error as soon as we implement the first source
+        #return 1
+        return 0
 
     failed = False
     for path in paths:

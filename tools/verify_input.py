@@ -81,7 +81,9 @@ def main() -> int:
     manifests = sorted(REPO_ROOT.glob(SOURCE_GLOB))
     if not manifests:
         print(f"verify_input: no files matched {SOURCE_GLOB}")
-        return 1
+        # TODO:: This should be an error as soon as we implement the first source
+        #return 1
+        return 0
 
     failed = False
     for manifest in manifests:
