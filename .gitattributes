@@ -1,0 +1,5 @@
+# Conflict policy: a conflict under dist/ should be resolved by REBUILDING
+sources/*/dist/** linguist-generated=true
+
+# Verbatim third-party input
+sources/*/input/** -text

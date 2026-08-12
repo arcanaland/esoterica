@@ -1,0 +1,32 @@
+version = 1
+SPDX-PackageName = "arcanaland-esoterica"
+SPDX-PackageSupplier = "Adam Fidel <adam@fidel.cloud>"
+SPDX-PackageDownloadLocation = "https://github.com/arcanaland/esoterica"
+
+# Fallback
+[[annotations]]
+path = "**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Adam Fidel"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Code
+[[annotations]]
+path = ["justfile", "tools/**", "sources/*/build.py"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Adam Fidel"
+SPDX-License-Identifier = "MIT"
+
+# Third-party
+[[annotations]]
+path = "sources/mcelroy/input/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2014 Mark McElroy"
+SPDX-License-Identifier = "LicenseRef-McElroy-Uncopyright"
+
+# Derived work
+[[annotations]]
+path = "sources/mcelroy/dist/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2014 Mark McElroy"
+SPDX-License-Identifier = "LicenseRef-McElroy-Uncopyright"

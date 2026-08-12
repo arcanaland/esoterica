@@ -1,0 +1,40 @@
+# Manifest for one corpus source.
+
+schema = 1
+
+identifier = "land.arcana.dev/x_esoterica_source/mcelroy-a-guide-to-tarot-card-meanings-2014"
+
+[work]
+title = "A Guide to Tarot Card Meanings"
+author = "Mark McElroy"
+year = 2014
+edition = "Version 1.0"
+released = "2014-08"
+
+[work.prior_publication]
+title = "The Absolute Beginner’s Guide to Tarot"
+publisher = "Que Books"
+rights_reverted_to_author = 2013
+
+[license]
+spdx = "LicenseRef-McElroy-Uncopyright"
+license_file = "LICENSES/LicenseRef-McElroy-Uncopyright.txt"
+copyright = "2014 Mark McElroy"
+attribution_required = false
+attribution_requested = "Divinatory Meanings by Mark McElroy (http://www.TarotTools.com)"
+
+[input]
+kind = "vendored"
+path = "input/mcelroy.txt"
+sha256 = "4f365123c518c05beb013a784b79e9a742c823ae221e626a5ab5a009d2c1e317"
+
+[input.encoding]
+declared = "utf-8"
+
+# some Mac-Roman / Windows-1252 trickery happening here with the so called "utf-8"
+[input.mojibake]
+"Õ" = "’"
+"Ñ" = "—"
+"É" = "…"
+"Ò" = "“"
+"Ó" = "”"
