@@ -1,0 +1,139 @@
+# Lines of input/mcelroy.txt this build deliberately does not carry into dist/.
+#
+# tools/coverage.py partitions all 2658 input lines into mapped, dropped and
+# unclaimed, and fails on any line that is none of the three.
+schema = 1
+
+# ---------------------------------------------------------------------------
+# Blank lines
+# ---------------------------------------------------------------------------
+
+[[drop]]
+rule = "blank"
+reason = "Whitespace separating the book's blocks."
+
+# ---------------------------------------------------------------------------
+# Title page and apparatus
+# ---------------------------------------------------------------------------
+
+[[drop]]
+lines = "1-2"
+reason = "Title and byline. Carried as [meta].name and [meta].author, from SOURCE.toml's [work]."
+
+[[drop]]
+lines = "4-101"
+reason = "Table of contents."
+
+[[drop]]
+lines = "104-106"
+reason = "Dedication."
+
+# ---------------------------------------------------------------------------
+# Licence and preface
+# ---------------------------------------------------------------------------
+
+[[drop]]
+lines = "109-112"
+reason = "Uncopyright Notice."
+
+[[drop]]
+lines = "114"
+reason = "Version 1.0"
+
+[[drop]]
+lines = "117-123"
+reason = "Author's Preface."
+
+[[drop]]
+lines = "125-127"
+reason = "The author's signature and two web addresses."
+
+# ---------------------------------------------------------------------------
+# The how-to chapter
+# ---------------------------------------------------------------------------
+
+[[drop]]
+lines = "130-171"
+reason = "A chapter about how to use the book, addressing no card and no group."
+
+# ---------------------------------------------------------------------------
+# Chapter headings and navigation
+# ---------------------------------------------------------------------------
+
+[[drop]]
+lines = "174"
+reason = "\"The Major Arcana\" heading. Structural: it selects group.arcana.major, whose text is the chapter body at 180-181."
+
+[[drop]]
+lines = "175-179"
+reason = "\"In This Chapter\" list. Navigation, phrased as questions the chapter answers, not content about the majors."
+
+[[drop]]
+lines = "907"
+reason = "\"The Minor Arcana\" heading. Structural: it selects group.arcana.minor."
+
+[[drop]]
+lines = "909"
+reason = "\"The Suit Cards\" heading. Structural: its body is carried as group.arcana.minor's x_suit_cards."
+
+[[drop]]
+lines = "928"
+reason = "\"The Pip Cards\" heading. Structural: it selects group.classes.pip."
+
+[[drop]]
+lines = "934"
+reason = "\"The Court Cards\" heading. Structural: it selects group.classes.court."
+
+[[drop]]
+lines = "969"
+reason = "\"Suit of Wands\" divider. Names a chapter of card entries, not a card. group.suits.wands is built from the suit block at 912-915."
+
+[[drop]]
+lines = "1392"
+reason = "\"Suit of Cups\" divider."
+
+[[drop]]
+lines = "1816"
+reason = "\"Suit of Swords\" divider."
+
+[[drop]]
+lines = "2239"
+reason = "\"Suit of Coins\" divider."
+
+# ---------------------------------------------------------------------------
+# The suit blocks
+# ---------------------------------------------------------------------------
+
+[[drop]]
+lines = "912"
+reason = "\"Wands\" heading. Structural: it selects group.suits.wands."
+
+# TODO:
+# "Also Called:" loses information the spec cannot represent currently
+[[drop]]
+lines = "913"
+reason = "\"Also Called:\" for Wands. Alternative suit names used by other decks."
+
+[[drop]]
+lines = "916"
+reason = "\"Cups\" heading. Structural: it selects group.suits.cups."
+
+[[drop]]
+lines = "917"
+reason = "\"Also Called:\" for Cups."
+
+[[drop]]
+lines = "920"
+reason = "\"Swords\" heading. Structural: it selects group.suits.swords."
+
+[[drop]]
+lines = "921"
+reason = "\"Also Called:\" for Swords."
+
+[[drop]]
+lines = "924"
+reason = "\"Coins\" heading. Structural: it selects group.suits.pentacles"
+
+[[drop]]
+lines = "925"
+reason = "\"Also Called:\" for Pentacles/Coins."

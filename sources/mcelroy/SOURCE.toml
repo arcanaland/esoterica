@@ -2,7 +2,7 @@
 
 schema = 1
 
-identifier = "land.arcana.dev/esoterica/mcelroy-a-guide-to-tarot-card-meanings-2014"
+identifier = "land.arcana/esoterica/mcelroy-a-guide-to-tarot-card-meanings-2014"
 
 [work]
 title = "A Guide to Tarot Card Meanings"
@@ -33,8 +33,14 @@ declared = "utf-8"
 
 # some Mac-Roman / Windows-1252 trickery happening here with the so called "utf-8"
 [input.mojibake]
-"Õ" = "’"
-"Ñ" = "—"
-"É" = "…"
-"Ò" = "“"
-"Ó" = "”"
+"Õ" = "’"   # 24x  0xD5
+"Ñ" = "—"   # 73x  0xD1
+"É" = "…"   # 9x   0xC9
+"Ò" = "“"   # 6x   0xD2
+"Ó" = "”"   # 6x   0xD3
+"Ð" = "–"   # 4x   0xD0
+"Ž" = "é"   # 1x   0x8E (clichŽ)
+
+[input.accents]
+"[as]" = "acute"
+"[ag]" = "grave"

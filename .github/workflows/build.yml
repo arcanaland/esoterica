@@ -1,4 +1,4 @@
-name: Validate
+name: Build
 
 on:
   pull_request:
@@ -6,12 +6,12 @@ on:
     branches: [main]
 
 jobs:
-  validate:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - uses: extractions/setup-just@v2
-      - run: just lint
-      - run: just validate
-      - run: just test
+      - run: just emit-test
+      - run: just build-check
+      - run: just coverage

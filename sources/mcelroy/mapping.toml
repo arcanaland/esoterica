@@ -1,0 +1,320 @@
+# How this source's text maps onto the spec's keys.
+
+schema = 1
+
+# ---------------------------------------------------------------------------
+# [meta]
+# ---------------------------------------------------------------------------
+
+[meta]
+schema_version = "1.0"
+type = "book"
+version = "0.5"
+published_date = "2014-08"
+citation = "McElroy, Mark. 2014. A Guide to Tarot Card Meanings. Version 1.0. http://www.TarotTools.com."
+default_language = "en"
+redistribution = "full"
+derivation = "full"
+
+# ---------------------------------------------------------------------------
+# Output
+# ---------------------------------------------------------------------------
+
+[output]
+filename = "mcelroy-a-guide-to-tarot-card-meanings-2014.toml"
+
+# Key order in the built file (absent means skipped)
+passage_order = [
+  "text",
+  "theme",
+  "x_suit_cards",
+  "x_note",
+  "keywords",
+  "light",
+  "shadow",
+  "personality",
+  "affirmation",
+  "story",
+  "x_mythical_spiritual",
+  "questions",
+  "advice",
+  "symbols",
+]
+
+advice_order = [
+  "relationships",
+  "work",
+  "spirituality",
+  "personal_growth",
+  "fortune_telling",
+  "timing",
+]
+
+correspondence_order = [
+  "number",
+  "archetype",
+  "element",
+  "planet",
+  "zodiac",
+  "astrology",
+  "season",
+  "color",
+  "direction",
+  "hebrew_letter",
+  "hebrew_letter_meaning",
+  "hebrew_letter_value",
+  "x_hebrew_letter_alt",
+  "x_numerology",
+  "x_elemental_dignity",
+]
+
+group_order = [
+  "group.arcana.major",
+  "group.arcana.minor",
+  "group.classes.pip",
+  "group.classes.court",
+  "group.suits.wands",
+  "group.suits.cups",
+  "group.suits.swords",
+  "group.suits.pentacles",
+]
+
+# ---------------------------------------------------------------------------
+# Structure
+# ---------------------------------------------------------------------------
+
+[structure]
+# The seven column-0 headings that occur inside a card entry.
+card_sections = [
+  "Note",
+  "Keywords",
+  "Range of Meaning",
+  "Correspondences",
+  "Advice",
+  "Symbols and Insights",
+  "Questions to Ask",
+]
+
+# Column-0 headings that divide the book's chapters
+chapter_dividers = [
+  "Suit of Wands",
+  "Suit of Cups",
+  "Suit of Swords",
+  "Suit of Coins",
+]
+
+# McElroy's suit names to canonical-suit.
+[structure.suits]
+Wands = "wands"
+Cups = "cups"
+Swords = "swords"
+Coins = "pentacles"
+
+[structure.ranks]
+Ace = "ace"
+Two = "two"
+Three = "three"
+Four = "four"
+Five = "five"
+Six = "six"
+Seven = "seven"
+Eight = "eight"
+Nine = "nine"
+Ten = "ten"
+Page = "page"
+Knight = "knight"
+Queen = "queen"
+King = "king"
+
+# ---------------------------------------------------------------------------
+# Card sections whose whole body is one value
+# ---------------------------------------------------------------------------
+
+[sections]
+# "Keywords" is one line of comma-separated terms.
+keywords_target = "passages.keywords"
+keywords_separator = ", "
+
+# "Questions to Ask" is a run of "* " bullets.
+questions_target = "passages.questions"
+
+note_target = "passages.x_note"
+
+# "Range of Meaning"
+[range_of_meaning]
+"Light" = "passages.light"
+"Shadow" = "passages.shadow"
+
+# ---------------------------------------------------------------------------
+# "Advice"
+# ---------------------------------------------------------------------------
+# Six labels, in this order, on all 78 cards.
+
+[advice]
+"Relationships" = "passages.advice.relationships"
+"Work" = "passages.advice.work"
+"Spirituality" = "passages.advice.spirituality"
+"Personal Growth" = "passages.advice.personal_growth"
+"Fortune Telling" = "passages.advice.fortune_telling"
+"When?" = "passages.advice.timing"
+
+# ---------------------------------------------------------------------------
+# "Symbols and Insights"
+# ---------------------------------------------------------------------------
+
+[symbols]
+target_prefix = "passages.symbols"
+terminators = [". ", "? ", "! "]
+abbreviations = ["vs"]
+
+
+# ---------------------------------------------------------------------------
+# "Correspondences" -- the labels
+# ---------------------------------------------------------------------------
+
+[correspondences.labels]
+"Archetype" = { target = "correspondences.archetype", transform = "lowercase" }
+"Astrology" = { target = "correspondences.astrology", transform = "lowercase" }
+"Affirmation" = { target = "passages.affirmation", transform = "unquote" }
+"Personality" = { target = "passages.personality" }
+"Story" = { target = "passages.story" }
+
+# TODO: gap in spec?
+"Mythical/Spiritual" = { target = "passages.x_mythical_spiritual" }
+"Elemental" = { target = "correspondences.x_elemental_dignity", transform = "lowercase_no_period" }
+
+# Three labels need more than a target and are routed by the tables below.
+"Numbers" = { handler = "number" }
+"Numerology" = { handler = "number" }
+"Hebrew Alphabet" = { handler = "hebrew" }
+"Planetary/Astrological/Elemental" = { handler = "planetary" }
+
+# ---------------------------------------------------------------------------
+# "Numbers:" (majors) and "Numerology:" (pips)
+# ---------------------------------------------------------------------------
+[correspondences.number]
+target = "correspondences.number"
+gloss_target = "correspondences.x_numerology"
+
+# ---------------------------------------------------------------------------
+# "Hebrew Alphabet:" -- 22 rows
+# ---------------------------------------------------------------------------
+[correspondences.hebrew]
+letter_target = "correspondences.hebrew_letter"
+meaning_target = "correspondences.hebrew_letter_meaning"
+value_target = "correspondences.hebrew_letter_value"
+alt_target = "correspondences.x_hebrew_letter_alt"
+
+# ---------------------------------------------------------------------------
+# "Planetary/Astrological/Elemental:" -- 22 rows
+# ---------------------------------------------------------------------------
+[correspondences.planetary]
+kind_targets = { element = "correspondences.element", planet = "correspondences.planet", zodiac = "correspondences.zodiac" }
+
+[correspondences.planetary.terms]
+air = "element"
+earth = "element"
+fire = "element"
+water = "element"
+
+"the sun" = "planet"
+"the moon" = "planet"
+mercury = "planet"
+venus = "planet"
+mars = "planet"
+jupiter = "planet"
+saturn = "planet"
+
+aries = "zodiac"
+taurus = "zodiac"
+gemini = "zodiac"
+cancer = "zodiac"
+leo = "zodiac"
+virgo = "zodiac"
+libra = "zodiac"
+scorpio = "zodiac"
+sagittarius = "zodiac"
+capricorn = "zodiac"
+aquarius = "zodiac"
+pisces = "zodiac"
+
+# ---------------------------------------------------------------------------
+# Front matter that is content rather than apparatus
+# ---------------------------------------------------------------------------
+[[front_matter]]
+lines = "180-181"
+target = "group.arcana.major"
+key = "passages.text"
+note = "The Major Arcana chapter, less its heading and its In This Chapter list."
+
+[[front_matter]]
+lines = "908"
+target = "group.arcana.minor"
+key = "passages.text"
+note = "The Minor Arcana chapter."
+
+[[front_matter]]
+lines = "910-911"
+target = "group.arcana.minor"
+key = "passages.x_suit_cards"
+note = "The Suit Cards, a subsection about the four suits collectively. No builtin family names the suits as a set, and 5.2 registers no key for it."
+
+[[front_matter]]
+lines = "929-933"
+target = "group.classes.pip"
+key = "passages.text"
+note = "The Pip Cards chapter."
+
+[[front_matter]]
+lines = "935-966"
+target = "group.classes.court"
+key = "passages.text"
+note = "The Court Cards chapter. Its bulleted tables are carried as the lines they are."
+
+[[front_matter]]
+lines = "914"
+target = "group.suits.wands"
+key = "passages.theme"
+strip_prefix = "Dimension of Life: "
+
+[[front_matter]]
+lines = "918"
+target = "group.suits.cups"
+key = "passages.theme"
+strip_prefix = "Dimension of Life: "
+
+[[front_matter]]
+lines = "922"
+target = "group.suits.swords"
+key = "passages.theme"
+strip_prefix = "Dimension of Life: "
+
+[[front_matter]]
+lines = "926"
+target = "group.suits.pentacles"
+key = "passages.theme"
+strip_prefix = "Dimension of Life: "
+
+# ---------------------------------------------------------------------------
+# Suit correspondences
+# ---------------------------------------------------------------------------
+[[group_correspondences]]
+target = "group.suits.wands"
+lines = "915"
+values = { season = "spring", color = "red", direction = "south", element = "fire" }
+
+[[group_correspondences]]
+target = "group.suits.cups"
+lines = "919"
+values = { season = "summer", color = "blue", direction = "east", element = "water" }
+
+[[group_correspondences]]
+target = "group.suits.swords"
+lines = "923"
+values = { season = "fall", color = "yellow", direction = "west", element = "air" }
+
+[[group_correspondences]]
+target = "group.suits.pentacles"
+lines = "927"
+values = { season = "winter", color = "green or brown", direction = "north", element = "earth" }
+

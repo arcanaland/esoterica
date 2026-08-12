@@ -10,9 +10,18 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Adam Fidel"
 SPDX-License-Identifier = "CC0-1.0"
 
-# Code
+# Code and config
 [[annotations]]
-path = ["justfile", "tools/**", "sources/*/build.py"]
+path = [
+  "justfile",
+  "tools/**",
+  "sources/*/build.py",
+  "sources/*/mapping.toml",
+  "sources/*/drops.toml",
+  "sources/mcelroy/dist/PROVENANCE.toml",
+  "packages/*/src/**",
+  "tests/**",
+]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Adam Fidel"
 SPDX-License-Identifier = "MIT"
@@ -30,3 +39,4 @@ path = "sources/mcelroy/dist/**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2014 Mark McElroy"
 SPDX-License-Identifier = "LicenseRef-McElroy-Uncopyright"
+
