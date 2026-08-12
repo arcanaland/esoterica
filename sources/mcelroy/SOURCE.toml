@@ -32,9 +32,21 @@ sha256 = "4f365123c518c05beb013a784b79e9a742c823ae221e626a5ab5a009d2c1e317"
 declared = "utf-8"
 
 # some Mac-Roman / Windows-1252 trickery happening here with the so called "utf-8"
+# Seven distinct non-ASCII characters occur in the input; all seven are Mac Roman
+# bytes read as something else, and each repairs by a context-free substitution.
 [input.mojibake]
-"Õ" = "’"
-"Ñ" = "—"
-"É" = "…"
-"Ò" = "“"
-"Ó" = "”"
+"Õ" = "’"   # 24x  0xD5
+"Ñ" = "—"   # 73x  0xD1
+"É" = "…"   # 9x   0xC9
+"Ò" = "“"   # 6x   0xD2
+"Ó" = "”"   # 6x   0xD3
+"Ð" = "–"   # 4x   0xD0, always a spaced dash
+"Ž" = "é"   # 1x   0x8E, "clichŽ" at input/mcelroy.txt:1895
+
+# A second, unrelated notation: a bracketed accent applying to the vowel that
+# precedes it. Not more rows of [input.mojibake] -- that table remaps one
+# character, this one deletes two and accents the character before them.
+# Five occurrences, at :325, :531 (twice), :722, :754.
+[input.accents]
+"[as]" = "acute"
+"[ag]" = "grave"

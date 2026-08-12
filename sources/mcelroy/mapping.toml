@@ -1,0 +1,538 @@
+# How this source's text maps onto ESOTERICA.md keys.
+#
+# Data only. build.py walks the structure of input/mcelroy.txt and looks
+# everything else up here, so that a reviewer checking a mapping decision reads
+# a table rather than a parser. Every label-to-key correspondence, every suit
+# rename, every per-value routing decision is in this file.
+#
+# Line numbers appearing here are line numbers in input/mcelroy.txt, whose bytes
+# are pinned by SOURCE.toml's sha256 and never change.
+#
+# Transforms named below and implemented in build.py:
+#   verbatim            the repaired text, unchanged
+#   lowercase           lowercased; ESOTERICA.md 6.1 SHOULDs it for correspondences
+#   lowercase_no_period lowercased with one trailing "." removed
+#   unquote             one layer of enclosing double quotes removed
+
+schema = 1
+
+# ---------------------------------------------------------------------------
+# Structure
+# ---------------------------------------------------------------------------
+
+[structure]
+# The seven column-0 headings that occur inside a card entry. An eighth would
+# be a build failure rather than a silently dropped section.
+card_sections = [
+  "Note",
+  "Keywords",
+  "Range of Meaning",
+  "Correspondences",
+  "Advice",
+  "Symbols and Insights",
+  "Questions to Ask",
+]
+
+# Column-0 headings that divide the book's chapters but name no card.
+chapter_dividers = [
+  "Suit of Wands",
+  "Suit of Cups",
+  "Suit of Swords",
+  "Suit of Coins",
+]
+
+# McElroy's suit names to DECK.md 3.5's canonical-suit. "Coins" is the book's
+# word for the suit DECK.md:431 fixes as `pentacles`.
+[structure.suits]
+Wands = "wands"
+Cups = "cups"
+Swords = "swords"
+Coins = "pentacles"
+
+[structure.ranks]
+Ace = "ace"
+Two = "two"
+Three = "three"
+Four = "four"
+Five = "five"
+Six = "six"
+Seven = "seven"
+Eight = "eight"
+Nine = "nine"
+Ten = "ten"
+Page = "page"
+Knight = "knight"
+Queen = "queen"
+King = "king"
+
+# ---------------------------------------------------------------------------
+# Card sections whose whole body is one value
+# ---------------------------------------------------------------------------
+
+[sections]
+# "Keywords" is one line of comma-separated terms.
+keywords_target = "passages.keywords"
+keywords_separator = ", "
+
+# "Questions to Ask" is a run of "* " bullets.
+questions_target = "passages.questions"
+
+# "Note" is a paragraph or two, present on three cards only. ESOTERICA.md has no
+# registered key for a per-card editorial note, so it takes an x_ prefix.
+note_target = "passages.x_note"
+
+# ---------------------------------------------------------------------------
+# "Range of Meaning"
+# ---------------------------------------------------------------------------
+
+[range_of_meaning]
+"Light" = "passages.light"
+"Shadow" = "passages.shadow"
+
+# ---------------------------------------------------------------------------
+# "Advice"
+# ---------------------------------------------------------------------------
+# Six labels, in this order, on all 78 cards. "When?" is the book's spelling of
+# what the registry calls advice.timing.
+
+[advice]
+"Relationships" = "passages.advice.relationships"
+"Work" = "passages.advice.work"
+"Spirituality" = "passages.advice.spirituality"
+"Personal Growth" = "passages.advice.personal_growth"
+"Fortune Telling" = "passages.advice.fortune_telling"
+"When?" = "passages.advice.timing"
+
+# ---------------------------------------------------------------------------
+# "Symbols and Insights"
+# ---------------------------------------------------------------------------
+
+[symbols]
+target_prefix = "passages.symbols"
+
+# An entry is a bold label, then its body. The label ends at the first sentence
+# terminator that is not an abbreviation: "Achievement vs. momentum." is one
+# label and splitting at the first ". " would truncate it to "Achievement vs".
+terminators = [". ", "? ", "! "]
+abbreviations = ["vs"]
+
+# The label becomes a DECK.md 3.2 custom name: apostrophes dropped, every other
+# run of non-alphanumerics collapsed to "_". Keys are per-card, so the 52
+# repeats of "The Marseilles Image." across cards are not collisions; two
+# entries colliding within one card is a build failure.
+
+# ---------------------------------------------------------------------------
+# "Correspondences" -- the labels
+# ---------------------------------------------------------------------------
+# ESOTERICA.md 6 files a value by what it is, not by the heading the book
+# printed it under. Several of the values below sit under "Correspondences" in
+# the book and are prose written to be read, so they are passages.
+
+[correspondences.labels]
+"Archetype" = { target = "correspondences.archetype", transform = "lowercase" }
+"Astrology" = { target = "correspondences.astrology", transform = "lowercase" }
+"Affirmation" = { target = "passages.affirmation", transform = "unquote" }
+"Personality" = { target = "passages.personality" }
+"Story" = { target = "passages.story" }
+
+# Prose about myth and religion, written to be read. A passage by 6's line, and
+# 5.2 has no key for it.
+"Mythical/Spiritual" = { target = "passages.x_mythical_spiritual" }
+
+# "Air of Air." on a court card is a rank-of-suit dignity, not an element.
+# Putting it in `element` would state something the source does not.
+"Elemental" = { target = "correspondences.x_elemental_dignity", transform = "lowercase_no_period" }
+
+# Three labels need more than a target, and are routed by the tables below.
+"Numbers" = { handler = "number" }
+"Numerology" = { handler = "number" }
+"Hebrew Alphabet" = { handler = "hebrew" }
+"Planetary/Astrological/Elemental" = { handler = "planetary" }
+
+# ---------------------------------------------------------------------------
+# "Numbers:" (majors) and "Numerology:" (pips)
+# ---------------------------------------------------------------------------
+# Both print an integer, then a digit-sum reduction on the majors, then a gloss
+# in parentheses. 6.2 types `number` as Integer and has no key for the gloss, so
+# the leading integer goes to `number` and the whole printed value is kept.
+#
+# Trumps 8 and 11 read 11 and 8 respectively, against their trump position. That
+# is what the source says the card carries, which is 6.2's exact wording, and it
+# is not a defect to be corrected here.
+
+[correspondences.number]
+target = "correspondences.number"
+gloss_target = "correspondences.x_numerology"
+
+# ---------------------------------------------------------------------------
+# "Hebrew Alphabet:" -- 22 rows
+# ---------------------------------------------------------------------------
+# The book prints Letter/Meaning/Value, which 6.1 demonstrates normalizing into
+# three keys. Driven from a table rather than a split because the rows are not
+# uniform: `Zain/Sword/ 7` carries a stray space, and four rows carry a second
+# attribution introduced by "or" or ", or in some decks,". The alternate is kept
+# whole in x_hebrew_letter_alt rather than decomposed, lowercased for 6.1.
+#
+# `Koph` appears twice, on trumps 10 and 18, where the tradition distinguishes
+# Kaph from Qoph. That is the book's spelling and it is carried as printed.
+
+[correspondences.hebrew."major_arcana.00"]
+letter = "aleph"
+meaning = "ox"
+value = 1
+
+[correspondences.hebrew."major_arcana.01"]
+letter = "beth"
+meaning = "house"
+value = 2
+
+[correspondences.hebrew."major_arcana.02"]
+letter = "gimel"
+meaning = "camel"
+value = 3
+
+[correspondences.hebrew."major_arcana.03"]
+letter = "daleth"
+meaning = "door"
+value = 4
+
+[correspondences.hebrew."major_arcana.04"]
+letter = "hé"
+meaning = "window"
+value = 5
+alt = "tzaddi/fish hook/90"
+
+[correspondences.hebrew."major_arcana.05"]
+letter = "vau"
+meaning = "nail or spike"
+value = 6
+
+[correspondences.hebrew."major_arcana.06"]
+letter = "zain"
+meaning = "sword"
+value = 7
+
+[correspondences.hebrew."major_arcana.07"]
+letter = "cheth"
+meaning = "fence"
+value = 8
+
+[correspondences.hebrew."major_arcana.08"]
+letter = "theth"
+meaning = "snake"
+value = 9
+alt = "lamed/outstretched arms/30"
+
+[correspondences.hebrew."major_arcana.09"]
+letter = "yod"
+meaning = "hand"
+value = 10
+
+[correspondences.hebrew."major_arcana.10"]
+letter = "koph"
+meaning = "palm"
+value = 20
+
+[correspondences.hebrew."major_arcana.11"]
+letter = "lamed"
+meaning = "outstretched arms"
+value = 30
+alt = "theth/snake/9"
+
+[correspondences.hebrew."major_arcana.12"]
+letter = "mem"
+meaning = "water"
+value = 40
+
+[correspondences.hebrew."major_arcana.13"]
+letter = "nun"
+meaning = "fish"
+value = 50
+
+[correspondences.hebrew."major_arcana.14"]
+letter = "samekh"
+meaning = "foundation"
+value = 60
+
+[correspondences.hebrew."major_arcana.15"]
+letter = "ayin"
+meaning = "eye"
+value = 70
+
+[correspondences.hebrew."major_arcana.16"]
+letter = "pé"
+meaning = "open mouth"
+value = 80
+
+[correspondences.hebrew."major_arcana.17"]
+letter = "tzaddi"
+meaning = "fishhook"
+value = 90
+alt = "hé/window/5"
+
+[correspondences.hebrew."major_arcana.18"]
+letter = "koph"
+meaning = "back of the head"
+value = 100
+
+[correspondences.hebrew."major_arcana.19"]
+letter = "resh"
+meaning = "head"
+value = 200
+
+[correspondences.hebrew."major_arcana.20"]
+letter = "sin"
+meaning = "tooth"
+value = 300
+
+[correspondences.hebrew."major_arcana.21"]
+letter = "tau"
+meaning = "cross"
+value = 400
+
+# ---------------------------------------------------------------------------
+# "Planetary/Astrological/Elemental:" -- 22 rows
+# ---------------------------------------------------------------------------
+# A three-way disjunctive heading. Its 22 values are variously an element, a
+# planet, a sign, a compound of two of those, or an alternation between two.
+# Each is routed by hand into 6.2's `element`, `planet` and `zodiac`. Where the
+# source alternates ("Leo or Libra") the alternation is kept in one string,
+# because 6.1 says a correspondence value is in the source's own vocabulary and
+# splitting it would assert a choice the book declines to make.
+
+[correspondences.planetary."major_arcana.00"]           # Air
+element = "air"
+
+[correspondences.planetary."major_arcana.01"]           # The sun/Mercury
+planet = "the sun/mercury"
+
+[correspondences.planetary."major_arcana.02"]           # The moon
+planet = "the moon"
+
+[correspondences.planetary."major_arcana.03"]           # Venus
+planet = "venus"
+
+[correspondences.planetary."major_arcana.04"]           # Mars/Aries
+planet = "mars"
+zodiac = "aries"
+
+[correspondences.planetary."major_arcana.05"]           # Taurus/Earth
+zodiac = "taurus"
+element = "earth"
+
+[correspondences.planetary."major_arcana.06"]           # Gemini
+zodiac = "gemini"
+
+[correspondences.planetary."major_arcana.07"]           # Cancer
+zodiac = "cancer"
+
+[correspondences.planetary."major_arcana.08"]           # Leo or Libra
+zodiac = "leo or libra"
+
+[correspondences.planetary."major_arcana.09"]           # Virgo
+zodiac = "virgo"
+
+[correspondences.planetary."major_arcana.10"]           # Jupiter
+planet = "jupiter"
+
+[correspondences.planetary."major_arcana.11"]           # Libra or Leo
+zodiac = "libra or leo"
+
+[correspondences.planetary."major_arcana.12"]           # Water
+element = "water"
+
+[correspondences.planetary."major_arcana.13"]           # Scorpio
+zodiac = "scorpio"
+
+[correspondences.planetary."major_arcana.14"]           # Sagittarius
+zodiac = "sagittarius"
+
+[correspondences.planetary."major_arcana.15"]           # Capricorn
+zodiac = "capricorn"
+
+[correspondences.planetary."major_arcana.16"]           # Mars
+planet = "mars"
+
+[correspondences.planetary."major_arcana.17"]           # Aquarius
+zodiac = "aquarius"
+
+[correspondences.planetary."major_arcana.18"]           # Pisces
+zodiac = "pisces"
+
+[correspondences.planetary."major_arcana.19"]           # The sun
+planet = "the sun"
+
+[correspondences.planetary."major_arcana.20"]           # Fire
+element = "fire"
+
+[correspondences.planetary."major_arcana.21"]           # Saturn
+planet = "saturn"
+
+# ---------------------------------------------------------------------------
+# Front matter that is content rather than apparatus
+# ---------------------------------------------------------------------------
+# Five chapters of the book describe groups of cards rather than any one card,
+# and ESOTERICA.md 4.4's builtin families name exactly those groups. Each entry
+# below claims a line range; drops.toml claims everything else.
+
+[[front_matter]]
+lines = "180-181"
+target = "group.arcana.major"
+key = "passages.text"
+note = "The Major Arcana chapter, less its heading and its In This Chapter list."
+
+[[front_matter]]
+lines = "908"
+target = "group.arcana.minor"
+key = "passages.text"
+note = "The Minor Arcana chapter."
+
+[[front_matter]]
+lines = "910-911"
+target = "group.arcana.minor"
+key = "passages.x_suit_cards"
+note = "The Suit Cards, a subsection about the four suits collectively. No builtin family names the suits as a set, and 5.2 registers no key for it."
+
+[[front_matter]]
+lines = "929-933"
+target = "group.classes.pip"
+key = "passages.text"
+note = "The Pip Cards chapter."
+
+[[front_matter]]
+lines = "935-966"
+target = "group.classes.court"
+key = "passages.text"
+note = "The Court Cards chapter. Its bulleted tables are carried as the lines they are."
+
+[[front_matter]]
+lines = "914"
+target = "group.suits.wands"
+key = "passages.theme"
+strip_prefix = "Dimension of Life: "
+
+[[front_matter]]
+lines = "918"
+target = "group.suits.cups"
+key = "passages.theme"
+strip_prefix = "Dimension of Life: "
+
+[[front_matter]]
+lines = "922"
+target = "group.suits.swords"
+key = "passages.theme"
+strip_prefix = "Dimension of Life: "
+
+[[front_matter]]
+lines = "926"
+target = "group.suits.pentacles"
+key = "passages.theme"
+strip_prefix = "Dimension of Life: "
+
+# ---------------------------------------------------------------------------
+# Suit correspondences
+# ---------------------------------------------------------------------------
+# Each suit's "Other Associations:" line is one English sentence naming, in
+# order, a season, a colour, a compass direction and an element. There are four
+# such lines in the book, so the sixteen values are written here as data rather
+# than recovered by parsing English.
+#
+# Coins reads "The color green or brown", an alternation. It is kept as one
+# string for the same reason the planetary alternations are: `color` admits an
+# array, but an array would say both apply, and the book says either.
+
+[[group_correspondences]]
+target = "group.suits.wands"
+lines = "915"
+values = { season = "spring", color = "red", direction = "south", element = "fire" }
+
+[[group_correspondences]]
+target = "group.suits.cups"
+lines = "919"
+values = { season = "summer", color = "blue", direction = "east", element = "water" }
+
+[[group_correspondences]]
+target = "group.suits.swords"
+lines = "923"
+values = { season = "fall", color = "yellow", direction = "west", element = "air" }
+
+[[group_correspondences]]
+target = "group.suits.pentacles"
+lines = "927"
+values = { season = "winter", color = "green or brown", direction = "north", element = "earth" }
+
+# ---------------------------------------------------------------------------
+# [meta]
+# ---------------------------------------------------------------------------
+# Values not drawn from SOURCE.toml. See TASK-003 in the knowledge base for why
+# copyright, description and rights_status are omitted rather than guessed.
+
+[meta]
+schema_version = "1.0"
+type = "book"
+published_date = "2014-08"
+default_language = "en"
+redistribution = "full"
+derivation = "full"
+
+# ---------------------------------------------------------------------------
+# Output
+# ---------------------------------------------------------------------------
+
+[output]
+filename = "mcelroy-a-guide-to-tarot-card-meanings-2014.toml"
+
+# Key order in the built file. Keys absent from a given target are skipped;
+# a key produced by the build and missing from these lists is a build failure,
+# so adding a mapping above without ordering it here cannot slip through.
+passage_order = [
+  "text",
+  "theme",
+  "x_suit_cards",
+  "x_note",
+  "keywords",
+  "light",
+  "shadow",
+  "personality",
+  "affirmation",
+  "story",
+  "x_mythical_spiritual",
+  "questions",
+  "advice",
+  "symbols",
+]
+advice_order = [
+  "relationships",
+  "work",
+  "spirituality",
+  "personal_growth",
+  "fortune_telling",
+  "timing",
+]
+correspondence_order = [
+  "number",
+  "archetype",
+  "element",
+  "planet",
+  "zodiac",
+  "astrology",
+  "season",
+  "color",
+  "direction",
+  "hebrew_letter",
+  "hebrew_letter_meaning",
+  "hebrew_letter_value",
+  "x_hebrew_letter_alt",
+  "x_numerology",
+  "x_elemental_dignity",
+]
+group_order = [
+  "group.arcana.major",
+  "group.arcana.minor",
+  "group.classes.pip",
+  "group.classes.court",
+  "group.suits.wands",
+  "group.suits.cups",
+  "group.suits.swords",
+  "group.suits.pentacles",
+]
