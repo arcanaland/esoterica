@@ -10,12 +10,9 @@ release_check.py <source> <version> --assets       print the asset paths, one pe
 release_check.py <source> <version> --identifier   print [meta].identifier
 
 The version is the one a tag claims. It is checked against the built document's
-[meta].version, which is the only authority for it: nothing may release under a
-number the artifact does not itself state.
+[meta].version.
 
---require-tag additionally demands that <source>/v<version> exist and be an
-annotated tag object. CI passes it, so that a shallow checkout fails loudly
-rather than skipping the gate.
+--require-tag (for CI): check that <source>/v<version> is an annotated tag
 """
 
 from __future__ import annotations

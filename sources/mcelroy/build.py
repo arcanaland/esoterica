@@ -650,9 +650,6 @@ class Builder:
 # ---------------------------------------------------------------------------
 
 
-# No `commit` field. dist/ is committed, so a commit hash written here could only ever
-# name the commit before the one containing it. The tree -> artifact claim is made at
-# release time by actions/attest-build-provenance, where there is no self-reference.
 def provenance(builder: Builder, output_name: str, output_text: str) -> dict:
     spec = builder.source["input"]
     return {
