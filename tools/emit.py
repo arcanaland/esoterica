@@ -3,21 +3,14 @@
 # requires-python = ">=3.14"
 # dependencies = []
 # ///
-"""A deterministic TOML 1.0.0 writer
+"""A simple deterministic TOML 1.0.0 writer
 
-Importable as a module: `dumps(table) -> str`. Run directly it self-tests.
+Guarantees:
 
-Guarantees, which are the reason this exists rather than a dependency:
-
-    - Key order is the insertion order of the dicts handed in. Nothing is
-      sorted, nothing is hashed, nothing is timestamped.
-    - The same input produces the same bytes, in this process or another.
+    - Key order is the insertion order of the dicts handed in.
+    - The same input produces the same bytes
     - Values longer than a line are written as multi-line basic strings,
-      which ESOTERICA.md 2.3 SHOULDs for passage text.
-
-Accepted value types: str, int, float, bool, list of those, and dict for a
-subtable. Anything else raises TypeError, because a silent coercion in a
-transcription pipeline is a lost byte.
+      which the spec says it SHOULD for passage text.
 """
 
 from __future__ import annotations
@@ -25,9 +18,7 @@ from __future__ import annotations
 import math
 import sys
 
-# A value at least this long is written as a multi-line basic string even when
-# it carries no newline. Passage text is the common case and reviewing a diff
-# of one 900-character line is not reviewing.
+# A value at least this long is written as a multi-line basic string
 MULTILINE_THRESHOLD = 100
 
 # An inline array wider than this is broken one element per line.
@@ -129,9 +120,7 @@ def _emit_table(table: dict, path: list[str], out: list[str]) -> None:
         else:
             pairs.append((key, value))
 
-    # A table with only subtables under it needs no header of its own: TOML
-    # creates it implicitly, and [card] or [card."major_arcana.00"] as an empty
-    # header is noise in a file a human reviews.
+    # A table with only subtables under it needs no header of its own
     if path and pairs:
         if out:
             out.append("")
