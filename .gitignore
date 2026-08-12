@@ -1,0 +1,7 @@
+# Keep your agents out of here
+*.local.md
+.claude
+agent*/
+
+__pycache__/
+.venv/

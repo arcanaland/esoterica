@@ -1,0 +1,12 @@
+# Built corpus output is committed on purpose (ADR-001): its diff is the review surface for
+# a mapping change, the way a golden file is the review surface for a snapshot test.
+# Marking it generated collapses that diff by default in GitHub's PR view and labels it, so
+# the output does not drown the mapping change that produced it. It stays one click away.
+#
+# Conflict policy: a conflict under dist/ is resolved by REBUILDING, never by hand-merging.
+# A hand-merged output is a file no build produces, which is the one thing this repo claims
+# cannot happen.
+sources/*/dist/** linguist-generated=true
+
+# Verbatim third-party input. Never normalized, never touched by an eol filter.
+sources/*/input/** -text

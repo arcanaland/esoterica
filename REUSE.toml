@@ -1,0 +1,33 @@
+version = 1
+SPDX-PackageName = "arcanaland-esoterica"
+SPDX-PackageSupplier = "Adam Fidel <adam@fidel.cloud>"
+SPDX-PackageDownloadLocation = "https://github.com/arcanaland/esoterica"
+
+# Repository aggregate. Everything not claimed by a more specific annotation below.
+[[annotations]]
+path = "**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Adam Fidel"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Tooling.
+[[annotations]]
+path = ["justfile", "tools/**", "sources/*/build.py"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Adam Fidel"
+SPDX-License-Identifier = "MIT"
+
+# Third-party input text, verbatim. Not the repository's to license.
+[[annotations]]
+path = "sources/mcelroy-tarot-meanings/input/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2014 Mark McElroy"
+SPDX-License-Identifier = "LicenseRef-McElroy-Uncopyright"
+
+# Built output. A rearrangement of the same words, so the same terms: they travel with the
+# text, not with the builder. Annotated before the path exists, deliberately.
+[[annotations]]
+path = "sources/mcelroy-tarot-meanings/dist/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2014 Mark McElroy"
+SPDX-License-Identifier = "LicenseRef-McElroy-Uncopyright"
