@@ -10,12 +10,9 @@ def test_minimal_document_is_clean(validate):
 @pytest.mark.parametrize(
     "line, level, spec",
     [
-        ("published_date = 2014", "E", "4.1"),
-        ('published_date = "2014-13"', "E", "4.1.3"),
-        ('published_date = "2014-02-30"', "E", "4.1.3"),
         ('tags = "book"', "E", "4.1"),
         ('tags = ["book", 2]', "E", "4.1"),
-        ('url = "example.com"', "E", "4.1"),
+        ("relation = 4", "E", "4.1"),
         ('default_language = "e n"', "E", "7.2"),
         ('redistribution = "yes"', "E", "8.3"),
         ('derivation = "maybe"', "E", "8.3"),
@@ -31,11 +28,7 @@ def test_meta_field(validate, meta, line, level, spec):
 @pytest.mark.parametrize(
     "line",
     [
-        'published_date = "2014"',
-        'published_date = "2014-02"',
-        'published_date = "2014-02-28"',
         'tags = ["book"]',
-        'url = "https://example.com/x"',
         'default_language = "en-GB"',
         'redistribution = "unstated"',
         'type = "book"',

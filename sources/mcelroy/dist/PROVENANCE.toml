@@ -12,7 +12,7 @@ lines = 2658
 
 [output]
 path = "dist/mcelroy-a-guide-to-tarot-card-meanings-2014.toml"
-sha256 = "17e434e462154a1979d0f26598bf21610d09feb02221a26fd9f0fb8db4482738"
+sha256 = "342e65dd89eea1a7257f05e0c669aa5c3d5b3ffddf27a30377826fd83270e0dd"
 
 [counts]
 lines = 2658
@@ -23,7 +23,8 @@ keywords = 78
 light = 78
 shadow = 78
 advice = 468
-symbols = 331
+symbols = 279
+marseille_image = 52
 questions = 234
 notes = 3
 archetype = 22

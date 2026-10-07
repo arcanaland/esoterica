@@ -37,7 +37,8 @@ EXPECTED = {
     "light": 78,
     "shadow": 78,
     "advice": 78 * 6,
-    "symbols": 331,
+    "symbols": 279,
+    "marseille_image": 52,
     "questions": 234,
     "notes": 3,
     "archetype": 22,
@@ -315,10 +316,12 @@ class Builder:
         if len(body) != 1:
             raise BuildError(f"{card_id}: Keywords is {len(body)} lines, expected 1")
         line_no, text = body[0]
-        sep = self.mapping["sections"]["keywords_separator"]
-        words = [w for w in undent(text).split(sep) if w]
+        sections = self.mapping["sections"]
+        words = [w for w in undent(text).split(sections["keywords_separator"]) if w]
         if len(words) < 3:
             raise BuildError(f"{card_id}: {len(words)} keywords at line {line_no}")
+        if sections.get("keywords_lowercase_first"):
+            words[0] = words[0][:1].lower() + words[0][1:]
         self.put(card_id, self.mapping["sections"]["keywords_target"], words, line_no)
         self.tally["keywords"] += 1
 
@@ -365,11 +368,16 @@ class Builder:
     def symbols(self, card_id: str, body: list[tuple[int, str]]) -> None:
         config = self.mapping["symbols"]
         prefix = config["target_prefix"]
+        routed = config.get("passages", {})
         seen: dict[str, int] = {}
         for line_no, text in body:
             label, rest = self.split_symbol(undent(text), config)
             if not rest:
                 raise BuildError(f"line {line_no}: symbol entry has a label and no body")
+            if label in routed:
+                self.put(card_id, routed[label]["target"], rest, line_no)
+                self.tally[routed[label]["tally"]] += 1
+                continue
             key = slugify(label)
             if not CUSTOM_NAME_RE.match(key):
                 raise BuildError(f"line {line_no}: {key!r} is not a custom name")
@@ -378,7 +386,11 @@ class Builder:
                     f"{card_id}: symbol key {key!r} at lines {seen[key]} and {line_no} collide"
                 )
             seen[key] = line_no
-            self.put(card_id, f"{prefix}.{key}", rest, line_no)
+            # The label is the heading as printed, before slugify discards it,
+            # less the punctuation that only separates it from the text.
+            if label[-1:] in config["label_separators"]:
+                label = label[:-1]
+            self.put(card_id, f"{prefix}.{key}", {"label": label, "text": rest}, line_no)
             self.tally["symbols"] += 1
 
     @staticmethod
@@ -603,10 +615,10 @@ class Builder:
                 out["passages"]["advice"] = self.ordered(
                     advice, order["advice_order"], "advice"
                 )
-            symbols = out["passages"].get("symbols")
-            if symbols:
-                # Symbol keys are the author's, so they keep the book's order.
-                out["passages"]["symbols"] = symbols
+        symbols = target.get("symbols") or {}
+        if symbols:
+            # Symbol keys are the author's, so they keep the book's order.
+            out["symbols"] = symbols
         correspondences = target.get("correspondences") or {}
         if correspondences:
             out["correspondences"] = self.ordered(
@@ -634,7 +646,7 @@ class Builder:
             "name": work["title"],
             "type": fixed["type"],
             "author": work["author"],
-            "published_date": fixed["published_date"],
+            "relation": fixed["relation"],
             "license": licence["spdx"],
             "version": fixed["version"],
             "citation": fixed["citation"],
@@ -642,6 +654,7 @@ class Builder:
             "attribution": licence["attribution_requested"],
             "redistribution": fixed["redistribution"],
             "derivation": fixed["derivation"],
+            "work": {"published_date": fixed["work"]["published_date"]},
         }
 
 

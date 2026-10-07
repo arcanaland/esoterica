@@ -5,11 +5,17 @@ Only rules that are local, syntactic and cheap, from ESOTERICA.md 11.4:
     E  the file is valid TOML 1.0.0 encoded as UTF-8 and carries a [meta] table
     E  [meta] carries schema_version, identifier, name and license
     E  every key 4.1 defines carries a value of its declared type
+    E  every key 4.1.4 defines under [meta.work] carries a value of its type
+    W  a [meta].relation outside 4.1.4's registry that is not prefixed x_
+    W  [meta].relation with no [meta.work], or [meta.work] with no relation
+    W  relation `annotates` or `abridges` with [meta].name equal to the work's
+    W  a publisher, published_date, isbn, url or rights_status directly
+       under [meta]
     E  [meta].schema_version has the form "<major>.<minor>"
     E  [meta].identifier is a well-formed qualified identifier with no fragment
     W  [meta].identifier's first path segment is `esoterica`
-    E  [meta].published_date is a published-date string naming a real date
-    E  [meta].url is absolute with an http or https scheme
+    E  [meta.work].published_date is a published-date string naming a real date
+    E  [meta.work].url is absolute with an http or https scheme
     E  [meta].default_language is a well-formed BCP 47 tag
     E  redistribution and derivation are `full`, `none` or `unstated`
     W  a [meta].type outside 4.1.1's registry that is not prefixed x_
@@ -17,7 +23,13 @@ Only rules that are local, syntactic and cheap, from ESOTERICA.md 11.4:
     E  every key under `card` is a canonical ID, written as one key, unsuffixed
     E  every key directly under `group` is a qualified identifier or a family
     E  a builtin family other than `all` takes exactly one admissible member
-    E  the segment in a target's slot position is passages, correspondences or cards
+    E  the segment in a target's slot position is passages, correspondences,
+       cards or symbols
+    E  every key beneath `symbols` is a custom name whose value is a table
+       carrying `text`, a passage value, and optionally `label`, a non-empty
+       string
+    W  a key beneath a symbol other than text and label
+    W  a passage whose entry key begins `symbols.`, the draft spelling
     E  a `cards` slot appears only on group.custom.<name> and lists canonical IDs
     E  every entry key part beneath a slot is a well-formed custom name
     E  every leaf beneath `passages` is a non-empty string or array of them
@@ -108,19 +120,19 @@ def check_card_key(key: str, report: Report) -> None:
 # ---------------------------------------------------------------------------
 
 
-def check_leaf(where: str, value, slot: str, report: Report) -> None:
+def check_leaf(where: str, value, slot: str, report: Report, spec: str = "5.1") -> None:
     if slot == "passages":
         if isinstance(value, str):
             if not value:
-                report.error("5.1", where, f"{where} is an empty string")
+                report.error(spec, where, f"{where} is an empty string")
         elif isinstance(value, list):
             if not value:
-                report.error("5.1", where, f"{where} is an empty array")
+                report.error(spec, where, f"{where} is an empty array")
             elif not all(isinstance(v, str) and v for v in value):
-                report.error("5.1", where, f"{where} is not an array of non-empty strings")
+                report.error(spec, where, f"{where} is not an array of non-empty strings")
         else:
             report.error(
-                "5.1",
+                spec,
                 where,
                 f"{where} is a {type(value).__name__}; a passage is a string or "
                 f"an array of strings",
@@ -160,6 +172,12 @@ def check_slot(where: str, table, slot: str, report: Report) -> None:
 
     def walk(node: dict, path: list[str]) -> None:
         for key, value in node.items():
+            reserved = (
+                slot == "passages" and not path and key in registry.LEGACY_PASSAGE_PREFIXES
+            )
+            if reserved and isinstance(value, dict):
+                legacy(value, [key])
+                continue
             if not grammar.is_custom_name(key):
                 report.error(
                     "3.4",
@@ -169,10 +187,28 @@ def check_slot(where: str, table, slot: str, report: Report) -> None:
                 continue
             if isinstance(value, dict):
                 walk(value, path + [key])
-            else:
-                entry_key = ".".join(path + [key])
-                check_leaf(f"{where}.{entry_key}", value, slot, report)
-                check_registry(f"{where}.{entry_key}", entry_key, slot, report)
+                continue
+            entry_key = ".".join(path + [key])
+            check_leaf(f"{where}.{entry_key}", value, slot, report)
+            check_registry(f"{where}.{entry_key}", entry_key, slot, report)
+
+    def legacy(node: dict, path: list[str]) -> None:
+        """Appendix B reserves these entries, and its W is the only rule for them.
+
+        An application ignores them, so a validator does not otherwise check
+        their key parts or their values.
+        """
+        for key, value in node.items():
+            if isinstance(value, dict):
+                legacy(value, path + [key])
+                continue
+            entry_key = ".".join(path + [key])
+            report.warn(
+                "Appendix B",
+                f"{where}.{entry_key}",
+                f"{where}.{entry_key} is the draft spelling of a symbol, and an "
+                f"application ignores it",
+            )
 
     walk(table, [])
 
@@ -187,13 +223,56 @@ def check_target(where: str, target, is_custom_group: bool, report: Report) -> N
                 "4.3",
                 f"{where}.{slot}",
                 f"{where}.{slot} is in the slot position and is not passages, "
-                f"correspondences or cards",
+                f"correspondences, cards or symbols",
             )
             continue
         if slot == "cards":
             check_cards_slot(f"{where}.cards", body, is_custom_group, report)
             continue
+        if slot == "symbols":
+            check_symbols_slot(f"{where}.symbols", body, report)
+            continue
         check_slot(f"{where}.{slot}", body, slot, report)
+
+
+def check_symbols_slot(where: str, table, report: Report) -> None:
+    """5.4: a symbol is a table carrying `text` and an optional `label`.
+
+    The symbol key is one segment. A dotted one cannot be written, because the
+    second segment is read as a field of the first.
+    """
+    if not isinstance(table, dict):
+        report.error("5.4", where, f"{where} is not a table")
+        return
+    for name, symbol in table.items():
+        at = f"{where}.{name}"
+        if not grammar.is_custom_name(name):
+            report.error("5.4", at, f"{at} is not a well-formed custom name")
+            continue
+        if not isinstance(symbol, dict):
+            report.error(
+                "5.4",
+                at,
+                f"{at} is a {type(symbol).__name__}; a symbol is a table carrying text",
+            )
+            continue
+        for field in registry.REQUIRED_SYMBOL_FIELDS:
+            if field not in symbol:
+                report.error("5.4", f"{at}.{field}", f"{at}.{field} is required and absent")
+        for field, value in symbol.items():
+            if field == "text":
+                check_leaf(f"{at}.text", value, "passages", report, spec="5.4")
+            elif field == "label":
+                if not (isinstance(value, str) and value):
+                    report.error("5.4", f"{at}.label", f"{at}.label is not a non-empty string")
+            else:
+                # 5.4 asks no x_ prefix here: every other field is warned about.
+                report.warn(
+                    "5.4",
+                    f"{at}.{field}",
+                    f"{at}.{field} is not a field this version defines, and an "
+                    f"application ignores it",
+                )
 
 
 def check_cards_slot(where: str, value, is_custom_group: bool, report: Report) -> None:
@@ -237,18 +316,16 @@ def check_meta(meta: dict, report: Report) -> None:
                 f"[meta].{key} is a version 0.1 spelling and is not defined",
             )
 
-    for key, value in meta.items():
-        expected = registry.META_FIELDS.get(key)
-        if expected == "String" and not isinstance(value, str):
-            report.error(
-                "4.1",
+    check_field_types(meta, registry.META_FIELDS, "meta", "4.1", report)
+
+    for key in registry.WORK_KEYS_UNDER_META:
+        if key in meta:
+            report.warn(
+                "Appendix B",
                 f"meta.{key}",
-                f"[meta].{key} must be a String, got {type(value).__name__}",
+                f"[meta].{key} describes the work rather than the document and is a "
+                f"[meta.work] key since 1.0",
             )
-        elif expected == "Array of String" and not (
-            isinstance(value, list) and all(isinstance(v, str) for v in value)
-        ):
-            report.error("4.1", f"meta.{key}", f"[meta].{key} must be an Array of String")
 
     version = meta.get("schema_version")
     if isinstance(version, str) and not grammar.is_schema_version(version):
@@ -278,25 +355,6 @@ def check_meta(meta: dict, report: Report) -> None:
                 f"{identifier.split('/')[1]!r} and not `esoterica`",
             )
 
-    published = meta.get("published_date")
-    if isinstance(published, str):
-        if not grammar.is_published_date(published):
-            report.error(
-                "4.1.3",
-                "meta.published_date",
-                f"[meta].published_date is not a published-date: {published!r}",
-            )
-        elif grammar.parse_published_date(published) is None:
-            report.error(
-                "4.1.3",
-                "meta.published_date",
-                f"[meta].published_date names no real date: {published!r}",
-            )
-
-    url = meta.get("url")
-    if isinstance(url, str) and not grammar.is_absolute_url(url):
-        report.error("4.1", "meta.url", f"[meta].url is not an absolute http(s) URL: {url!r}")
-
     language = meta.get("default_language")
     if isinstance(language, str) and not grammar.is_language_tag(language):
         report.error(
@@ -325,6 +383,94 @@ def check_meta(meta: dict, report: Report) -> None:
             "meta.type",
             f"[meta].type {source_type!r} is outside the registry and is not prefixed x_",
         )
+
+    check_work(meta, report)
+
+
+def check_work(meta: dict, report: Report) -> None:
+    """4.1.4: [meta.work], and [meta].relation, which says how the two stand."""
+    work = meta.get("work")
+    relation = meta.get("relation")
+
+    if isinstance(relation, str):
+        if relation not in registry.RELATIONS and not relation.startswith("x_"):
+            report.warn(
+                "4.1.4",
+                "meta.relation",
+                f"[meta].relation {relation!r} is outside the registry and is not prefixed x_",
+            )
+        if work is None:
+            report.warn(
+                "4.1.4",
+                "meta.relation",
+                "[meta].relation is present with no [meta.work] table, so it names how "
+                "the document stands to a work it does not describe",
+            )
+
+    if work is None:
+        return
+    if not isinstance(work, dict):
+        report.error("4.1.4", "meta.work", "[meta].work is not a table")
+        return
+
+    if relation is None:
+        report.warn(
+            "8.4",
+            "meta.work",
+            "[meta.work] is present with no [meta].relation, so an application cannot "
+            "tell whether [meta].author wrote the text it displays",
+        )
+
+    check_field_types(work, registry.WORK_FIELDS, "meta.work", "4.1.4", report)
+
+    if relation in registry.RENAMING_RELATIONS and meta.get("name") == work.get("name"):
+        report.warn(
+            "8.4",
+            "meta.name",
+            f"[meta].relation is {relation!r} and [meta].name equals [meta.work].name, "
+            f"so the document is offered under the title of a work it is not",
+        )
+
+    published = work.get("published_date")
+    if isinstance(published, str):
+        if not grammar.is_published_date(published):
+            report.error(
+                "4.1.3",
+                "meta.work.published_date",
+                f"[meta.work].published_date is not a published-date: {published!r}",
+            )
+        elif grammar.parse_published_date(published) is None:
+            report.error(
+                "4.1.3",
+                "meta.work.published_date",
+                f"[meta.work].published_date names no real date: {published!r}",
+            )
+
+    url = work.get("url")
+    if isinstance(url, str) and not grammar.is_absolute_url(url):
+        report.error(
+            "4.1.4",
+            "meta.work.url",
+            f"[meta.work].url is not an absolute http(s) URL: {url!r}",
+        )
+
+
+def check_field_types(
+    table: dict, fields: dict[str, str], name: str, spec: str, report: Report
+) -> None:
+    """Type every key a field table defines. A key it does not define is ignored."""
+    for key, value in table.items():
+        expected = fields.get(key)
+        if expected == "String" and not isinstance(value, str):
+            report.error(
+                spec,
+                f"{name}.{key}",
+                f"[{name}].{key} must be a String, got {type(value).__name__}",
+            )
+        elif expected == "Array of String" and not (
+            isinstance(value, list) and all(isinstance(v, str) for v in value)
+        ):
+            report.error(spec, f"{name}.{key}", f"[{name}].{key} must be an Array of String")
 
 
 def check_group(groups: dict, report: Report) -> None:

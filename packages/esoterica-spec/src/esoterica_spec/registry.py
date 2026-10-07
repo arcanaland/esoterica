@@ -1,4 +1,4 @@
-"""ESOTERICA.md's registries, as data: 4.1, 4.1.1, 4.4, 5.2, 6.2, 8.3, Appendix B."""
+"""ESOTERICA.md's registries, as data: 4.1, 4.1.1, 4.1.4, 4.4, 5.2, 6.2, 8.3, Appendix B."""
 
 from __future__ import annotations
 
@@ -15,22 +15,37 @@ META_FIELDS = {
     "type": "String",
     "version": "String",
     "author": "String",
-    "publisher": "String",
-    "published_date": "String",
-    "isbn": "String",
-    "url": "String",
+    "relation": "String",
     "citation": "String",
     "description": "String",
     "default_language": "String",
     "translates": "String",
     "copyright": "String",
     "attribution": "String",
-    "rights_status": "String",
     "redistribution": "String",
     "derivation": "String",
     "tags": "Array of String",
 }
 REQUIRED_META_FIELDS = ("schema_version", "identifier", "name", "license")
+
+# 4.1.4. [meta.work] describes the work, and [meta].relation how the document
+# stands to it.
+WORK_FIELDS = {
+    "name": "String",
+    "author": "String",
+    "type": "String",
+    "publisher": "String",
+    "published_date": "String",
+    "isbn": "String",
+    "url": "String",
+    "rights_status": "String",
+}
+RELATIONS = frozenset({"transcribes", "abridges", "annotates"})
+# 4.1.4 and Appendix B: facts about the work, which [meta] carried before 1.0.
+WORK_KEYS_UNDER_META = ("publisher", "published_date", "isbn", "url", "rights_status")
+# 4.1.4: the relations under which the document is not the work, so must not
+# borrow its name.
+RENAMING_RELATIONS = ("annotates", "abridges")
 
 # 4.1.1
 SOURCE_TYPES = frozenset(
@@ -52,9 +67,13 @@ FAMILY_MEMBERS = {
 CLOSED_FAMILIES = ("arcana", "classes")
 
 # 4.3
-SLOTS = ("passages", "correspondences", "cards")
+SLOTS = ("passages", "correspondences", "cards", "symbols")
 
-# 5.2. `symbols.<name>` is the one open subkey and is handled by is_registered.
+# 5.4
+SYMBOL_FIELDS = ("text", "label")
+REQUIRED_SYMBOL_FIELDS = ("text",)
+
+# 5.2
 PASSAGE_KEYS = frozenset(
     {
         "text",
@@ -101,12 +120,14 @@ CORRESPONDENCE_KEYS = frozenset(
 # Appendix B: version 0.1 spellings this version does not define.
 LEGACY_META_KEYS = ("id",)
 LEGACY_TOP_LEVEL_TABLES = ("passages",)
+# The first part of a passage entry key that is the draft spelling of a symbol.
+LEGACY_PASSAGE_PREFIXES = ("symbols",)
 
 
 def is_registered(slot: str, entry_key: str) -> bool:
     """Whether 5.2 or 6.2 claims an entry key, or the author has claimed it.
 
-    The `x_` test reads "any part prefixed x_", so `symbols.x_jester` and
+    The `x_` test reads "any part prefixed x_", so `x_symbols.jester` and
     `x_upright.work` both pass. 11.4 does not say which part must carry the
     prefix for a dotted key; this is the reading STATUS finding 10 records as
     ambiguous, and it is deliberately the permissive one, since the rule is a
@@ -116,5 +137,5 @@ def is_registered(slot: str, entry_key: str) -> bool:
     if any(part.startswith("x_") for part in parts):
         return True
     if slot == "passages":
-        return entry_key in PASSAGE_KEYS or (len(parts) == 2 and parts[0] == "symbols")
+        return entry_key in PASSAGE_KEYS
     return entry_key in CORRESPONDENCE_KEYS
