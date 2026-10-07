@@ -9,12 +9,18 @@ schema = 1
 [meta]
 schema_version = "1.0"
 type = "book"
-version = "0.5"
-published_date = "2014-08"
+version = "1.0"
+relation = "transcribes"
 citation = "McElroy, Mark. 2014. A Guide to Tarot Card Meanings. Version 1.0. http://www.TarotTools.com."
 default_language = "en"
 redistribution = "full"
 derivation = "full"
+
+# Facts about the book rather than the file. Only the date is stated: under
+# `transcribes` the author is [meta].author's alone, and the book's other
+# printings stay dropped.
+[meta.work]
+published_date = "2014-08"
 
 # ---------------------------------------------------------------------------
 # Output
@@ -38,7 +44,7 @@ passage_order = [
   "x_mythical_spiritual",
   "questions",
   "advice",
-  "symbols",
+  "x_marseille_image",
 ]
 
 advice_order = [
@@ -134,6 +140,9 @@ King = "king"
 # "Keywords" is one line of comma-separated terms.
 keywords_target = "passages.keywords"
 keywords_separator = ", "
+# The line is set in sentence case, so its first term alone is capitalized.
+# Only that initial letter is lowered; every other term is kept as printed.
+keywords_lowercase_first = true
 
 # "Questions to Ask" is a run of "* " bullets.
 questions_target = "passages.questions"
@@ -163,9 +172,19 @@ note_target = "passages.x_note"
 # ---------------------------------------------------------------------------
 
 [symbols]
-target_prefix = "passages.symbols"
+target_prefix = "symbols"
 terminators = [". ", "? ", "! "]
 abbreviations = ["vs"]
+# Headings are printed run-in. A final "." only separates the heading from the
+# text and is not part of the label (ESOTERICA.md 5.4); a "?" or "!" is kept.
+label_separators = ["."]
+
+# Headings in this section that do not name an element of a picture. The
+# heading is consumed as structure and the body becomes the passage named.
+# "The Marseilles Image." describes a whole composition on every numbered minor
+# and could never be pointed at on an RWS card, so it is not a symbol.
+[symbols.passages]
+"The Marseilles Image." = { target = "passages.x_marseille_image", tally = "marseille_image" }
 
 
 # ---------------------------------------------------------------------------

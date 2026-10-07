@@ -82,7 +82,8 @@ def test_parse_published_date(value, expected):
     [
         ("passages", "text", True),
         ("passages", "advice.work", True),
-        ("passages", "symbols.jester", True),
+        # RFC-048 moved symbols out of 5.2 and into their own slot.
+        ("passages", "symbols.jester", False),
         ("passages", "symbols.a.b", False),
         ("passages", "mymeaning", False),
         ("passages", "x_upright", True),
