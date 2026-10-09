@@ -11,6 +11,8 @@ Guarantees:
     - The same input produces the same bytes
     - Values longer than a line are written as multi-line basic strings,
       which the spec says it SHOULD for passage text.
+    - A table inside an array is written inline, on one line, so it holds
+      scalars only.
 """
 
 from __future__ import annotations
@@ -93,10 +95,29 @@ def _render_scalar(value: object) -> str:
     raise TypeError(f"not a TOML scalar: {type(value).__name__}")
 
 
+def _render_inline_table(table: dict) -> str:
+    pairs = []
+    for key, value in table.items():
+        if not isinstance(key, str):
+            raise TypeError(f"table key is not a string: {key!r}")
+        if isinstance(value, str):
+            # A multi-line string would break the table across lines.
+            pairs.append(f"{_render_key(key)} = {_basic_string(value)}")
+        else:
+            pairs.append(f"{_render_key(key)} = {_render_scalar(value)}")
+    return "{ " + ", ".join(pairs) + " }" if pairs else "{}"
+
+
+def _render_element(value: object) -> str:
+    if isinstance(value, dict):
+        return _render_inline_table(value)
+    return _render_scalar(value)
+
+
 def _render_array(values: list) -> str:
     if not values:
         return "[]"
-    rendered = [_render_scalar(v) for v in values]
+    rendered = [_render_element(v) for v in values]
     oneline = "[" + ", ".join(rendered) + "]"
     if len(oneline) <= ARRAY_WIDTH and not any("\n" in r for r in rendered):
         return oneline
@@ -157,6 +178,7 @@ def _self_test() -> int:
             "triple": 'a """ b',
             "list": ["one", "two"],
             "wide": ["a rather long element indeed", "another long element here"],
+            "related": [{"rel": "pattern", "target": "example.org/pattern/x", "n": 1}],
         },
         "card": {
             "major_arcana.00": {

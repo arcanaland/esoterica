@@ -9,8 +9,13 @@ schema = 1
 [meta]
 schema_version = "1.0"
 type = "book"
-version = "1.0"
+version = "1.1"
 relation = "transcribes"
+# The book states its seating in its own text, under Trumps 8 and 11 (x_note):
+# Strength is 8 and Justice is 11, as in the Rider-Waite-Smith tradition.
+related = [
+  { rel = "pattern", target = "land.arcana/pattern/rider-waite-smith" },
+]
 citation = "McElroy, Mark. 2014. A Guide to Tarot Card Meanings. Version 1.0. http://www.TarotTools.com."
 default_language = "en"
 redistribution = "full"
