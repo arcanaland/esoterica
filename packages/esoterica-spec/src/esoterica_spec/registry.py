@@ -1,4 +1,6 @@
-"""ESOTERICA.md's registries, as data: 4.1, 4.1.1, 4.1.4, 4.4, 5.2, 6.2, 8.3, Appendix B."""
+"""ESOTERICA.md's registries, as data: 4.1, 4.1.1, 4.1.4, 4.1.5, 4.4, 5.2, 6.2, 8.3,
+Appendix B.
+"""
 
 from __future__ import annotations
 
@@ -16,6 +18,7 @@ META_FIELDS = {
     "version": "String",
     "author": "String",
     "relation": "String",
+    "related": "Array of Table",
     "citation": "String",
     "description": "String",
     "default_language": "String",
@@ -46,6 +49,10 @@ WORK_KEYS_UNDER_META = ("publisher", "published_date", "isbn", "url", "rights_st
 # 4.1.4: the relations under which the document is not the work, so must not
 # borrow its name.
 RENAMING_RELATIONS = ("annotates", "abridges")
+
+# 4.1.5. `pattern` is at most once; `about` names a deck or a pattern.
+RELATED_RELS = frozenset({"pattern", "about"})
+ABOUT_TARGET_TYPES = ("deck", "pattern")
 
 # 4.1.1
 SOURCE_TYPES = frozenset(

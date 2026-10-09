@@ -11,6 +11,15 @@ Only rules that are local, syntactic and cheap, from ESOTERICA.md 11.4:
     W  relation `annotates` or `abridges` with [meta].name equal to the work's
     W  a publisher, published_date, isbn, url or rights_status directly
        under [meta]
+    E  every [meta].related entry is a table with string rel and target, and
+       rel is a custom name
+    E  a related target is a qualified identifier with no fragment, so is
+       neither a card reference nor a variant reference
+    E  a `pattern` target's type segment is `pattern`
+    E  at most one `pattern` entry
+    W  a related rel outside 4.1.5's registry that is not prefixed x_
+    W  an `about` target whose type segment is neither deck nor pattern
+    W  an overlay carrying a non-empty [meta].related
     E  [meta].schema_version has the form "<major>.<minor>"
     E  [meta].identifier is a well-formed qualified identifier with no fragment
     W  [meta].identifier's first path segment is `esoterica`
@@ -385,6 +394,78 @@ def check_meta(meta: dict, report: Report) -> None:
         )
 
     check_work(meta, report)
+    check_related(meta, report)
+
+
+def check_related(meta: dict, report: Report) -> None:
+    """4.1.5: [meta].related, the pattern a source assumes and what it is about."""
+    related = meta.get("related")
+    if not isinstance(related, list):
+        return  # absent, or the type rule has already reported it
+
+    if related and "translates" in meta:
+        report.warn(
+            "7.1",
+            "meta.related",
+            "[meta].related is on an overlay, and an application reads relations "
+            "from the base source instead",
+        )
+
+    patterns = 0
+    for index, entry in enumerate(related):
+        where = f"meta.related[{index}]"
+        if not isinstance(entry, dict):
+            continue  # the type rule has already reported it
+        rel = entry.get("rel")
+        target = entry.get("target")
+        if not (isinstance(rel, str) and isinstance(target, str)):
+            report.error("4.1.5", where, f"[{where}] must carry rel and target, both strings")
+            continue
+        if not grammar.is_custom_name(rel):
+            report.error(
+                "4.1.5", where, f"[{where}].rel is not a well-formed custom name: {rel!r}"
+            )
+            continue
+        if not grammar.is_qualified_id(target, allow_fragment=False):
+            report.error(
+                "4.1.5",
+                where,
+                f"[{where}].target is not a qualified identifier without a fragment, "
+                f"so may be a card or variant reference: {target!r}",
+            )
+            continue
+
+        target_type = target.split("/")[1]
+        if rel == "pattern":
+            patterns += 1
+            if target_type != "pattern":
+                report.error(
+                    "4.1.5",
+                    where,
+                    f"[{where}] is a pattern relation whose target's type segment is "
+                    f"{target_type!r}, not `pattern`",
+                )
+        elif rel == "about":
+            if target_type not in registry.ABOUT_TARGET_TYPES:
+                report.warn(
+                    "4.1.5",
+                    where,
+                    f"[{where}] is an about relation whose target's type segment is "
+                    f"{target_type!r}, neither `deck` nor `pattern`",
+                )
+        elif not rel.startswith("x_"):
+            report.warn(
+                "4.1.5",
+                where,
+                f"[{where}].rel {rel!r} is outside the registry and is not prefixed x_",
+            )
+
+    if patterns > 1:
+        report.error(
+            "4.1.5",
+            "meta.related",
+            f"[meta].related carries {patterns} pattern relations; at most one is allowed",
+        )
 
 
 def check_work(meta: dict, report: Report) -> None:
@@ -471,6 +552,10 @@ def check_field_types(
             isinstance(value, list) and all(isinstance(v, str) for v in value)
         ):
             report.error(spec, f"{name}.{key}", f"[{name}].{key} must be an Array of String")
+        elif expected == "Array of Table" and not (
+            isinstance(value, list) and all(isinstance(v, dict) for v in value)
+        ):
+            report.error(spec, f"{name}.{key}", f"[{name}].{key} must be an Array of Table")
 
 
 def check_group(groups: dict, report: Report) -> None:

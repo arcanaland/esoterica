@@ -647,6 +647,7 @@ class Builder:
             "type": fixed["type"],
             "author": work["author"],
             "relation": fixed["relation"],
+            "related": [dict(entry) for entry in fixed["related"]],
             "license": licence["spdx"],
             "version": fixed["version"],
             "citation": fixed["citation"],
