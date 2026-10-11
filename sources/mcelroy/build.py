@@ -638,6 +638,7 @@ class Builder:
 
     def meta(self) -> dict:
         work = self.source["work"]
+        prior = work["prior_publication"]
         licence = self.source["license"]
         fixed = self.mapping["meta"]
         return {
@@ -655,7 +656,14 @@ class Builder:
             "attribution": licence["attribution_requested"],
             "redistribution": fixed["redistribution"],
             "derivation": fixed["derivation"],
-            "work": {"published_date": fixed["work"]["published_date"]},
+            "work": {
+                "name": prior["title"],
+                "type": prior["type"],
+                "publisher": prior["publisher"],
+                "published_date": prior["published"],
+                "isbn": prior["isbn"],
+                "url": prior["url"],
+            },
         }
 
 
