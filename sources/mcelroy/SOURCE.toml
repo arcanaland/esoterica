@@ -12,8 +12,12 @@ edition = "Version 1.0"
 released = "2014-08"
 
 [work.prior_publication]
-title = "The Absolute Beginner’s Guide to Tarot"
-publisher = "Que Books"
+title = "Absolute Beginner’s Guide to Tarot"
+type = "book"
+publisher = "Que"
+published = "2006"
+isbn = "978-0-7897-3515-7"
+url = "https://www.informit.com/store/absolute-beginners-guide-to-tarot-9780789735157"
 rights_reverted_to_author = 2013
 
 [license]
