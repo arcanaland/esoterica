@@ -7,7 +7,9 @@ import platform
 import unicodedata
 from typing import Any
 
-NOTE = "Provenance for the companion esoterica pack."
+# TODO: let's change it to this
+#NOTE = "Provenance for the companion esoterica pack."
+NOTE = "Provenance for the built file beside this one."
 
 
 def output_table(output_name: str, output_text: str) -> dict[str, str]:
