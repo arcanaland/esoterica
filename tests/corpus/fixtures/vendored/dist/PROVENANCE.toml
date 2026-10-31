@@ -1,0 +1,23 @@
+schema = 1
+note = "Provenance for the built file beside this one."
+
+[build]
+builder = "esoterica-corpus"
+identifier = "land.arcana.dev/esoterica/fixture-vendored"
+
+[input]
+path = "input/fixture.txt"
+sha256 = "cb49f38a5833a9f2def01b8246814b7b1d96fcf4456fc07d1eaf142e4e618851"
+lines = 15
+
+[output]
+path = "dist/fixture-vendored.toml"
+sha256 = "c0758f763297d83181a8eb82433ef61df71457dd8acd589eb49a7677d3e4a048"
+
+[counts]
+lines = 15
+cards = 3
+groups = 1
+"passages.light" = 3
+"passages.shadow" = 2
+"passages.*" = 6

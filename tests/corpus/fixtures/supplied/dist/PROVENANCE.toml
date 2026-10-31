@@ -1,0 +1,23 @@
+schema = 1
+note = "Provenance for the built file beside this one."
+
+[build]
+identifier = "land.arcana.dev/esoterica/fixture-supplied"
+python = "3.14.7"
+unidata = "16.0.0"
+
+[input]
+kind = "supplied"
+file_sha256 = "28ade6875ec997dd7f8f2546588c895b7005d1414b3aafc4bd960e8e5bc80ca5"
+accepted = true
+canonical_sha256 = "fae74692fbd545dd390791f999ba524b02ba60be26f541be508ed25b35082938"
+lines = 15
+
+[input.extractor]
+name = "plain"
+distribution = "esoterica-tests"
+version = "0"
+
+[output]
+path = "dist/fixture-supplied.toml"
+sha256 = "3e3e6849d954849ce978cc2a2134d041690df7b161752ca60c07c43f91c8fd76"
