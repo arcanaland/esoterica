@@ -1,0 +1,3 @@
+# Inputs are hashed byte for byte
+vendored/input/** -text
+supplied-input/** -text
