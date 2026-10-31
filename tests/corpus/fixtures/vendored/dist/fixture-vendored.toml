@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: CC0-1.0
+
+[meta]
+schema_version = "1.0"
+identifier = "land.arcana.dev/esoterica/fixture-vendored"
+name = "A Fixture Book of Three Cards"
+license = "CC0-1.0"
+
+[card."major_arcana.00".passages]
+light = "Setting out with nothing packed and everything to learn."
+shadow = "Walking past the edge of the map without looking down."
+
+[card."major_arcana.01".passages]
+light = "Turning the tools on the table into a plan for the afternoon."
+shadow = "Keeping the audience watching one hand while the other works."
+
+[card."minor_arcana.wands.ace".passages]
+light = "A spark that has not yet decided what it will burn."
+
+[group.arcana.major.passages]
+text = "The trumps are numbered, and the numbers are part of their names."

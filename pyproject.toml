@@ -2,7 +2,7 @@
 name = "esoterica-workspace"
 version = "0"
 requires-python = ">=3.14"
-dependencies = ["esoterica-spec"]
+dependencies = ["esoterica-corpus", "esoterica-spec"]
 
 [tool.uv]
 package = false
@@ -11,6 +11,7 @@ package = false
 members = ["packages/*"]
 
 [tool.uv.sources]
+esoterica-corpus = { workspace = true }
 esoterica-spec = { workspace = true }
 
 [dependency-groups]

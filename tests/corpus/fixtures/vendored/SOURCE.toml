@@ -1,0 +1,19 @@
+# A vendored source for the pipeline's tests. Its input was written for them.
+
+schema = 1
+
+identifier = "land.arcana.dev/esoterica/fixture-vendored"
+
+[work]
+title = "A Fixture Book of Three Cards"
+
+[license]
+spdx = "CC0-1.0"
+
+[input]
+kind = "vendored"
+path = "input/fixture.txt"
+sha256 = "cb49f38a5833a9f2def01b8246814b7b1d96fcf4456fc07d1eaf142e4e618851"
+
+[input.encoding]
+declared = "utf-8"
