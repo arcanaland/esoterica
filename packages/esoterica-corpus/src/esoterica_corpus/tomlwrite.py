@@ -1,10 +1,10 @@
 """A simple deterministic TOML 1.0.0 writer.
-    - Key order is the insertion order of the dicts handed in.
-    - The same input produces the same bytes
-    - Values longer than a line are written as multi-line basic strings,
-      which the spec says it SHOULD for passage text.
-    - A table inside an array is written inline, on one line, so it holds
-      scalars only.
+- Key order is the insertion order of the dicts handed in.
+- The same input produces the same bytes
+- Values longer than a line are written as multi-line basic strings,
+  which the spec says it SHOULD for passage text.
+- A table inside an array is written inline, on one line, so it holds
+  scalars only.
 """
 
 # TODO: should we replace this with a lib?
