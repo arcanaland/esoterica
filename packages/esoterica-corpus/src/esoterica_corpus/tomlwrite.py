@@ -1,10 +1,4 @@
-"""A simple deterministic TOML 1.0.0 writer
-
-Copied from tools/emit.py, which it replaces. It stays hand-written and
-dependency-free: a dependency may shape the process, never the product bytes.
-
-Guarantees:
-
+"""A simple deterministic TOML 1.0.0 writer.
     - Key order is the insertion order of the dicts handed in.
     - The same input produces the same bytes
     - Values longer than a line are written as multi-line basic strings,
@@ -12,6 +6,8 @@ Guarantees:
     - A table inside an array is written inline, on one line, so it holds
       scalars only.
 """
+
+# TODO: should we replace this with a lib?
 
 from __future__ import annotations
 
@@ -33,7 +29,7 @@ def _render_key(key: str) -> str:
 
 
 def _escape_common(text: str) -> str:
-    """Escape backslashes and control characters. Quotes are the caller's."""
+    """Escape backslashes and control characters."""
     out = []
     for ch in text:
         if ch == "\\":
@@ -152,7 +148,7 @@ def _emit_table(table: dict, path: list[str], out: list[str]) -> None:
 
 
 def dumps(table: dict) -> str:
-    """Render one TOML document. Key order is the order of the dicts given."""
+    """Render one TOML document."""
     if not isinstance(table, dict):
         raise TypeError("the document root must be a table")
     out: list[str] = []

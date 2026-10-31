@@ -1,9 +1,4 @@
-"""The count gate, stated in the built file's own keys
-
-`cards` and `groups` count tables. Every other key counts leaves, summed over
-every card and group: a leaf is any value that isn't a table, so a list is one.
-A `*` matches one or more trailing segments.
-"""
+"""Expected counts for output"""
 
 from __future__ import annotations
 

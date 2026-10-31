@@ -1,8 +1,4 @@
-"""PROVENANCE.toml, the record of what produced a built file
-
-Neither shape names a located input path. A supplied source's record is
-text-free, so it can be committed where its input can't.
-"""
+"""the PROVENANCE.toml file"""
 
 from __future__ import annotations
 
@@ -11,7 +7,7 @@ import platform
 import unicodedata
 from typing import Any
 
-NOTE = "Provenance for the built file beside this one."
+NOTE = "Provenance for the companion esoterica pack."
 
 
 def output_table(output_name: str, output_text: str) -> dict[str, str]:
