@@ -1,15 +1,3 @@
-"""An input's bytes to the lines a parser reads, through every hash gate
-
-Vendored: hash the committed file, decode it, split it, repair each line.
-
-Supplied: locate the file, match it against `accepted` (tier 1), extract,
-normalize, match the canonical text (tier 2), split, repair. From InputText on,
-nothing can tell the two kinds apart.
-
-Absence is never a pass. An input that is not here to verify is `unverified`,
-which a caller reports as such and fails on unless it was told to allow it.
-"""
-
 from __future__ import annotations
 
 import hashlib
@@ -43,6 +31,7 @@ STEPS: dict[str, Callable[[str], str]] = {
     "squeeze-blank": lambda t: re.sub(r"\n{3,}", "\n\n", t),
     "trim": lambda t: t.strip("\n") + "\n",
 }
+
 assert set(STEPS) == set(get_args(NormalizeStep)), "manifest and input disagree on steps"
 
 
@@ -79,6 +68,7 @@ class InputText:
     def drop_units(self, drop: Drop) -> list[Unit]:
         if drop.rule == "blank":
             return [n for n, text in enumerate(self.lines, 1) if not text.strip()]
+
         assert drop.lines is not None
         return list(parse_range(drop.lines))
 
@@ -137,9 +127,9 @@ class Status(StrEnum):
 @dataclass(frozen=True, slots=True)
 class Loaded:
     text: InputText
-    # The [input] table of PROVENANCE.toml, which never names a located path
+    # The [input] table of PROVENANCE.toml
     record: dict[str, Any]
-    # Canonical text before repair, which textfree reads. None for vendored.
+    # Canonical text before repair
     canonical: str | None = None
 
 
@@ -157,7 +147,7 @@ def fail(detail: str) -> Verdict:
 
 @dataclass(frozen=True, slots=True)
 class Locator:
-    """Where a supplied input may be. Neither path ever reaches any output."""
+    """Where a supplied input may be."""
 
     file: Path | None = None
     supplied: Path | None = None
@@ -219,10 +209,7 @@ def hash_file(path: Path) -> FileHashes:
 
 
 def search(directory: Path, accepted: list[Accepted]) -> Path | None:
-    """The first file at the directory's top level that is an accepted entry.
-
-    Matched by size, then by sha256. Never by md5, and never by extracting.
-    """
+    """The first file at the directory's top level that is an accepted entry."""
     sizes = {entry.size for entry in accepted}
     wanted = {entry.sha256 for entry in accepted}
     try:
@@ -290,7 +277,9 @@ def load_supplied(spec: SuppliedInput, locator: Locator) -> Verdict:
             f"the file is not accepted and does not yield the canonical text: "
             f"recorded {spec.canonical.sha256}, found {actual}"
         )
+
     lines = canonical.count("\n")
+
     if lines != spec.canonical.lines:
         return fail(
             f"manifest error: the canonical text matches its sha256 and has {lines} "

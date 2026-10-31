@@ -1,10 +1,4 @@
-"""What a parser yields, and how a parser or extractor is found
-
-A parser stops mutating a document and becomes a generator of records. Every
-record claims the input units it was made from. A unit is whatever the input
-adapter enumerates: a 1-based line number for a text input, and any hashable
-value for an adapter that is not a text. Nothing downstream counts lines itself.
-"""
+"""What a parser yields"""
 
 from __future__ import annotations
 
@@ -50,7 +44,7 @@ class SourceParser(Protocol):
 
 
 class Units(Protocol):
-    """An input as coverage sees it: the units to account for, and nothing else."""
+    """An input as coverage sees it"""
 
     def units(self) -> Sequence[Unit]: ...
 
@@ -95,8 +89,7 @@ def installed(group: str, name: str) -> Plugin | None:
     return None
 
 
-# The one lookup every resolution goes through. Tests substitute it, so that
-# they don't need installed metadata.
+# The one lookup every resolution goes through.
 lookup: Callable[[str, str], Plugin | None] = installed
 
 
