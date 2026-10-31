@@ -1,0 +1,26 @@
+schema = 1
+
+[build]
+parser = "fixture"
+
+[meta]
+schema_version = "1.0"
+name = "A Fixture Book of Three Cards"
+license = "CC0-1.0"
+
+[output]
+filename = "fixture-vendored.toml"
+passage_order = ["text", "light", "shadow"]
+group_order = ["group.arcana.major"]
+
+[expected]
+cards = 3
+groups = 1
+"passages.light" = 3
+"passages.shadow" = 2
+"passages.*" = 6
+
+# Read by the fixture parser, not the pipeline
+[fixture]
+labels = { Light = "passages.light", Shadow = "passages.shadow", Text = "passages.text" }
+groups = { "About the Majors" = "group.arcana.major" }

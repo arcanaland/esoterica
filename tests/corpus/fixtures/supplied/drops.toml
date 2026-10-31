@@ -1,0 +1,9 @@
+schema = 1
+
+[[drop]]
+rule = "blank"
+reason = "Whitespace between blocks."
+
+[[drop]]
+lines = "1"
+reason = "Title. Carried as [meta].name."
