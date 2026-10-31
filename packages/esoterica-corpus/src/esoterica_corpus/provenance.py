@@ -8,7 +8,7 @@ import unicodedata
 from typing import Any
 
 # TODO: let's change it to this
-#NOTE = "Provenance for the companion esoterica pack."
+# NOTE = "Provenance for the companion esoterica pack."
 NOTE = "Provenance for the built file beside this one."
 
 
